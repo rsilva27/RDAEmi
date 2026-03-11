@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { LucideAngularModule, Webhook, Network, Key, BookOpen, Activity, AlertTriangle, FileText, Map, Route, Database, Package, LucideIconData } from 'lucide-angular';
+import { LucideAngularModule, Webhook, Network, Key, BookOpen, Activity, AlertTriangle, FileText, Map, Route, Database, Package, Shield, LucideIconData } from 'lucide-angular';
 
 interface MenuItem {
   route: string;
@@ -54,6 +54,12 @@ export class LayoutComponent {
       items: [
         { route: 'modelo-datos', icon: Database, label: 'Diccionario de Datos' },
         { route: 'estructura-bundle', icon: Package, label: 'Estructura Bundle JSON' },
+      ],
+    },
+    {
+      title: 'Ciberseguridad',
+      items: [
+        { route: 'seguridad', icon: Shield, label: 'Arquitectura y Seguridad' },
       ],
     },
   ];

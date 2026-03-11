@@ -18,6 +18,7 @@ export const routes: Routes = [
       { path: 'flujo-api', loadComponent: () => import('./features/flujo-api/flujo-api').then(m => m.FlujoApiComponent) },
       { path: 'modelo-datos', loadComponent: () => import('./features/modelo-datos/modelo-datos').then(m => m.ModeloDatosComponent) },
       { path: 'estructura-bundle', loadComponent: () => import('./features/estructura-bundle/estructura-bundle').then(m => m.EstructuraBundleComponent) },
+      { path: 'seguridad', loadComponent: () => import('./features/seguridad/seguridad').then(m => m.SeguridadComponent) },
     ],
   },
   { path: '**', redirectTo: '' },

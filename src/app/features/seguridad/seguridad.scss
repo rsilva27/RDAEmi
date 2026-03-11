@@ -1,0 +1,11 @@
+@reference "tailwindcss";
+
+:host {
+  display: block;
+}
+
+.level-tab {
+  &:hover {
+    transform: translateY(-1px);
+  }
+}

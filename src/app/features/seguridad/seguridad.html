@@ -1,0 +1,187 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     DOCUMENTO MAESTRO DE ARQUITECTURA Y CIBERSEGURIDAD
+     IHCE - Res. 1888 de 2025 · Grupo emi S.A.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<!-- HEADER -->
+<header class="mb-8">
+  <div class="flex items-start gap-4 mb-4">
+    <div class="shrink-0 w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-lg">
+      <lucide-icon [img]="Shield" [size]="28" />
+    </div>
+    <div>
+      <h2 class="text-2xl font-bold text-slate-800">
+        Arquitectura y Ciberseguridad
+      </h2>
+      <p class="text-sm text-slate-500 mt-0.5">
+        Documento Maestro — Implementación IHCE (Res. 1888 de 2025) · Grupo emi S.A.
+      </p>
+    </div>
+  </div>
+
+  <!-- Severity overview badges -->
+  <div class="flex flex-wrap gap-3 mt-5">
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-50 border border-red-200">
+      <lucide-icon [img]="ShieldAlert" [size]="14" class="text-red-600" />
+      <span class="text-xs font-bold text-red-700">{{ severityCounts().critical }} Críticos</span>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200">
+      <lucide-icon [img]="AlertTriangle" [size]="14" class="text-amber-600" />
+      <span class="text-xs font-bold text-amber-700">{{ severityCounts().high }} Altos</span>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-yellow-50 border border-yellow-200">
+      <lucide-icon [img]="Eye" [size]="14" class="text-yellow-600" />
+      <span class="text-xs font-bold text-yellow-700">{{ severityCounts().medium }} Medios</span>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200">
+      <lucide-icon [img]="FileText" [size]="14" class="text-blue-600" />
+      <span class="text-xs font-bold text-blue-700">{{ severityCounts().info }} Informativos</span>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200">
+      <span class="text-xs font-medium text-slate-600">{{ severityCounts().total }} controles totales</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ LEVEL TABS ═══ -->
+<nav class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8" aria-label="Niveles de seguridad">
+  @for (level of levels; track level.id) {
+    <button
+      type="button"
+      (click)="setActiveLevel(level.id)"
+      class="level-tab rounded-xl border-2 p-4 text-left transition-all duration-200"
+      [class]="levelTabBg(level.color, activeLevel() === level.id)"
+      [attr.aria-pressed]="activeLevel() === level.id"
+    >
+      <div class="flex items-center gap-3 mb-2">
+        <span class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors" [class]="levelIconBg(level.color, activeLevel() === level.id)">
+          <lucide-icon [img]="level.icon" [size]="20" />
+        </span>
+        <span class="text-2xl font-black opacity-20">{{ level.number }}</span>
+      </div>
+      <h3 class="text-sm font-bold leading-tight">{{ level.shortTitle }}</h3>
+      <p class="text-xs mt-1 leading-snug" [class]="activeLevel() === level.id ? 'opacity-80' : 'text-slate-500'">
+        {{ level.subtitle }}
+      </p>
+      <div class="mt-2">
+        <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium"
+              [class]="activeLevel() === level.id ? 'bg-white/20' : 'bg-slate-100 text-slate-500'">
+          {{ level.subsections.length }} secciones
+        </span>
+      </div>
+    </button>
+  }
+</nav>
+
+<!-- ═══ ACTIVE LEVEL CONTENT ═══ -->
+@if (activeLevelData(); as level) {
+  <section class="animate-fadeIn" [attr.aria-label]="'Nivel ' + level.number + ': ' + level.title">
+    <!-- Level header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div>
+        <h3 class="text-lg font-bold text-slate-800">
+          Nivel {{ level.number }}: {{ level.title }}
+        </h3>
+        <p class="text-sm text-slate-500 mt-1">{{ level.description }}</p>
+        <span class="inline-block mt-2 px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-lg">
+          <lucide-icon [img]="Users" [size]="12" class="inline -mt-0.5 mr-1" />
+          {{ level.audience }}
+        </span>
+      </div>
+      <div class="flex gap-2 shrink-0">
+        <button
+          type="button"
+          (click)="expandAll()"
+          class="px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+        >
+          Expandir todo
+        </button>
+        <button
+          type="button"
+          (click)="collapseAll()"
+          class="px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+        >
+          Colapsar todo
+        </button>
+      </div>
+    </div>
+
+    <!-- Subsections -->
+    <div class="space-y-4">
+      @for (sub of level.subsections; track sub.id) {
+        <div class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden border-l-4" [class]="sectionHeaderBg(level.color)">
+          <!-- Subsection header (clickable) -->
+          <button
+            type="button"
+            class="w-full flex items-center justify-between gap-3 px-5 py-4 text-left hover:bg-slate-50 transition-colors"
+            (click)="toggleSection(sub.id)"
+            [attr.aria-expanded]="isSectionExpanded(sub.id)"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="shrink-0 w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">
+                {{ sub.number }}
+              </span>
+              <div class="min-w-0">
+                <h4 class="text-sm font-bold text-slate-800 truncate">{{ sub.title }}</h4>
+                <p class="text-xs text-slate-500 mt-0.5">{{ sub.items.length }} controles</p>
+              </div>
+            </div>
+            <lucide-icon
+              [img]="isSectionExpanded(sub.id) ? ChevronDown : ChevronRight"
+              [size]="18"
+              class="shrink-0 text-slate-400"
+            />
+          </button>
+
+          <!-- Subsection content -->
+          @if (isSectionExpanded(sub.id)) {
+            <div class="px-5 pb-5 animate-fadeIn">
+              <!-- Description -->
+              <p class="text-sm text-slate-600 mb-4 pl-11">{{ sub.description }}</p>
+
+              <!-- Policy items -->
+              <div class="space-y-3 pl-11">
+                @for (item of sub.items; track item.title) {
+                  <div class="rounded-lg border p-4" [class]="severityItemBg(item.severity)">
+                    <div class="flex items-start gap-3">
+                      <!-- Severity icon -->
+                      <div class="shrink-0 mt-0.5">
+                        <lucide-icon [img]="severityIcon(item.severity)" [size]="16" [class]="
+                          item.severity === 'critical' ? 'text-red-600' :
+                          item.severity === 'high' ? 'text-amber-600' :
+                          item.severity === 'medium' ? 'text-yellow-600' : 'text-blue-600'
+                        " />
+                      </div>
+                      <!-- Content -->
+                      <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                          <h5 class="text-sm font-bold" [class]="
+                            item.severity === 'critical' ? 'text-red-800' :
+                            item.severity === 'high' ? 'text-amber-800' :
+                            item.severity === 'medium' ? 'text-yellow-800' : 'text-blue-800'
+                          ">
+                            {{ item.title }}
+                          </h5>
+                          <span class="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase" [class]="severityBadge(item.severity)">
+                            {{ severityLabel(item.severity) }}
+                          </span>
+                        </div>
+                        <p class="text-sm leading-relaxed" [class]="
+                          item.severity === 'critical' ? 'text-red-700' :
+                          item.severity === 'high' ? 'text-amber-700' :
+                          item.severity === 'medium' ? 'text-yellow-700' : 'text-blue-700'
+                        ">
+                          {{ item.description }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+}
