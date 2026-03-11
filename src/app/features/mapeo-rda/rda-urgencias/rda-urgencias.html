@@ -1,0 +1,166 @@
+<div class="space-y-6">
+
+  <!-- Badge -->
+  <div class="flex items-center gap-3">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full">
+      <lucide-icon [img]="Siren" [size]="14" /> RDA de Urgencias / Atención Inmediata
+    </span>
+    <span class="text-xs text-slate-500">Emergencias y ambulancias</span>
+  </div>
+
+  <!-- A. Triage y Contexto -->
+  <section>
+    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+      <span class="bg-red-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">A</span>
+      Triage y Contexto de la Emergencia
+    </h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <span class="font-bold text-sm text-red-900 block mb-2">Modalidad y Entorno</span>
+        <p class="text-sm text-red-800">
+          Para ambulancias y atención prehospitalaria:
+        </p>
+        <div class="mt-2 space-y-1">
+          <div class="bg-white rounded p-2 text-sm">
+            <span class="bg-red-200 text-red-900 text-[10px] font-bold px-1.5 py-0.5 rounded">05</span>
+            <span class="text-slate-700 ml-1">Extramural: atención prehospitalaria o transporte asistencial</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <lucide-icon [img]="Activity" [size]="16" class="text-red-500" />
+          <span class="font-bold text-sm text-slate-800">Triage</span>
+        </div>
+        <ul class="text-sm text-slate-600 space-y-1.5 list-disc list-inside">
+          <li>Clasificación de <strong>prioridad</strong> del paciente</li>
+          <li>Fecha/hora <strong>exacta</strong> del triage</li>
+        </ul>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-lg p-4">
+        <span class="font-bold text-sm text-slate-800 block mb-2">Vía de Ingreso y Causa</span>
+        <p class="text-sm text-slate-600">Causa que motiva la atención de urgencia:</p>
+        <div class="mt-2 flex flex-wrap gap-1.5">
+          @for (causa of ['Accidente de tránsito', 'Enfermedad general', 'Trauma']; track causa) {
+            <span class="bg-slate-100 text-slate-700 text-[10px] font-medium px-2 py-1 rounded">{{ causa }}</span>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- B. Antecedentes y Diagnósticos -->
+  <section>
+    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+      <span class="bg-red-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">B</span>
+      Diagnósticos de Ingreso/Egreso
+      <span class="text-xs font-normal text-slate-500">Condition (CIE-10) — Mayor especificidad requerida</span>
+    </h3>
+
+    <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+      <div class="divide-y divide-slate-100">
+        @for (dx of diagnosticosUrgencia; track dx.label) {
+          <div class="flex items-center justify-between px-4 py-3">
+            <span class="text-sm text-slate-700 font-medium">{{ dx.label }}</span>
+            @if (dx.required) {
+              <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">OBLIGATORIO</span>
+            } @else {
+              <span class="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full">SI APLICA</span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- C. Tecnologías durante la Emergencia -->
+  <section>
+    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+      <span class="bg-red-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">C</span>
+      Tecnologías Administradas Durante la Emergencia
+    </h3>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <!-- Procedimientos -->
+      <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+        <div class="px-4 py-3 bg-indigo-50 border-b border-indigo-100 flex items-center gap-2">
+          <lucide-icon [img]="Stethoscope" [size]="16" class="text-indigo-600" />
+          <span class="font-bold text-sm text-indigo-900">Procedimientos Realizados</span>
+          <span class="text-xs text-indigo-600">Procedure</span>
+        </div>
+        <div class="p-4">
+          <ul class="text-sm text-slate-600 space-y-2 list-disc list-inside">
+            <li>Código <strong>CUPS</strong> de la intervención (RCP, intubación, estabilización)</li>
+            <li>Fecha de realización</li>
+            <li>Resultados de la valoración clínica observada</li>
+            <li>Identificación exacta del personal de la ambulancia</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Medicamentos Administrados -->
+      <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+        <div class="px-4 py-3 bg-emerald-50 border-b border-emerald-100 flex items-center gap-2">
+          <lucide-icon [img]="Pill" [size]="16" class="text-emerald-600" />
+          <span class="font-bold text-sm text-emerald-900">Medicamentos Administrados</span>
+          <span class="text-xs text-emerald-600">MedicationAdministration</span>
+        </div>
+        <div class="p-4">
+          <ul class="text-sm text-slate-600 space-y-1.5">
+            @for (field of medAdminFields; track field) {
+              <li class="flex items-start gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0"></span>
+                {{ field }}
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Otras Tecnologías -->
+    <div class="mt-4 bg-slate-50 border border-slate-200 rounded-lg p-4">
+      <span class="font-bold text-sm text-slate-800">Otras Tecnologías</span>
+      <p class="text-sm text-slate-600 mt-1">Reporte de uso de dispositivos médicos, insumos, componentes sanguíneos, etc.</p>
+    </div>
+  </section>
+
+  <!-- D. Cierre de la Atención -->
+  <section>
+    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+      <span class="bg-red-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">D</span>
+      Cierre de la Atención Inmediata
+    </h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white border border-slate-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <lucide-icon [img]="ArrowRightLeft" [size]="16" class="text-slate-600" />
+          <span class="font-bold text-sm text-slate-800">Condición y Destino al Egreso</span>
+        </div>
+        <ul class="text-sm text-slate-600 space-y-1.5 list-disc list-inside">
+          <li>Estado en que se deja o entrega al paciente</li>
+          <li>Ej. <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-1.5 py-0.5 rounded">02</span> Paciente muerto, derivación a hospital</li>
+          <li>Si destino es otra institución: <strong>código del prestador</strong> a donde se remite</li>
+        </ul>
+      </div>
+
+      <div class="bg-rose-50 border border-rose-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <lucide-icon [img]="FileDown" [size]="16" class="text-rose-500" />
+          <span class="font-bold text-sm text-rose-900">Epicrisis</span>
+          <span class="bg-red-200 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded-full">OBLIGATORIO</span>
+        </div>
+        <ul class="text-sm text-rose-800 space-y-1 list-disc list-inside">
+          <li>PDF de la Epicrisis de urgencia/atención inmediata</li>
+          <li>Codificado en <strong>Base64</strong></li>
+          <li>Sin claves, formato <strong>application/pdf</strong></li>
+          <li>Máximo <strong>5 MB</strong></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>

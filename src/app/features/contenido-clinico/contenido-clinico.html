@@ -1,0 +1,23 @@
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold text-slate-800 border-b pb-2">6. Contenido Clínico a Enviar (RDA)</h2>
+  <p class="text-slate-600">Conforme al Anexo Técnico y la Resolución 866 de 2021, el RDA incluye como mínimo los siguientes bloques de información estructurada.</p>
+
+  <div class="space-y-4">
+    @for (block of blocks; track block.title) {
+      <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex gap-4">
+        <div class="bg-indigo-100 p-3 rounded-full h-12 w-12 flex items-center justify-center shrink-0">
+          <lucide-icon [img]="block.icon" class="text-indigo-600" />
+        </div>
+        <div>
+          <h4 class="font-bold text-slate-800">{{ block.title }}</h4>
+          <p class="text-sm text-slate-600">{{ block.description }}</p>
+        </div>
+      </div>
+    }
+
+    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 border-l-4 border-l-slate-400">
+      <h4 class="font-bold text-slate-800 text-sm">Adjuntos (Epicrisis PDF)</h4>
+      <p class="text-sm text-slate-600 mt-1">En atenciones complejas se puede incluir el PDF utilizando un recurso <code>DocumentReference</code> con codificación Base64 y formato application/pdf (máximo 5 MB).</p>
+    </div>
+  </div>
+</div>

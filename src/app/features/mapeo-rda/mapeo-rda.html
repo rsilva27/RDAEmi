@@ -1,0 +1,59 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div>
+    <div class="flex items-center gap-2 mb-2">
+      <span class="inline-block px-2.5 py-0.5 bg-rose-100 text-rose-800 text-[10px] font-bold rounded-full uppercase tracking-wide">Res. 1888/2025 &amp; 866/2021</span>
+      <span class="inline-block px-2.5 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-full uppercase tracking-wide">HL7 FHIR R4</span>
+    </div>
+    <h2 class="text-2xl font-bold text-slate-800 mb-1">Mapeo e Integración RDA: Servicios a Domicilio y Emergencias</h2>
+    <p class="text-slate-600 text-sm">Especificaciones, elementos de datos y reglas de mapeo para JSON FHIR R4. Todos los envíos se empaquetan en un <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">Bundle</code> de tipo <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">document</code>, cuya primera entrada debe ser siempre el recurso <code class="bg-slate-100 px-1.5 py-0.5 rounded text-xs">Composition</code>.</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="border-b border-slate-200" role="tablist" aria-label="Tipos de RDA">
+    <div class="flex gap-1 -mb-px overflow-x-auto">
+      @for (tab of tabs; track tab.id) {
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="activeTab() === tab.id"
+          [attr.aria-controls]="'panel-' + tab.id"
+          [id]="'tab-' + tab.id"
+          (click)="setTab(tab.id)"
+          class="tab-btn flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all whitespace-nowrap rounded-t-lg"
+          [class]="activeTab() === tab.id ? tab.activeColor : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'"
+        >
+          <lucide-icon [img]="tab.icon" [size]="16" />
+          <span class="hidden sm:inline">{{ tab.label }}</span>
+          <span class="sm:hidden">{{ tab.shortLabel }}</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="animate-fadeIn">
+    @switch (activeTab()) {
+      @case ('paciente') {
+        <div role="tabpanel" id="panel-paciente" aria-labelledby="tab-paciente">
+          <app-rda-paciente />
+        </div>
+      }
+      @case ('consulta') {
+        <div role="tabpanel" id="panel-consulta" aria-labelledby="tab-consulta">
+          <app-rda-consulta />
+        </div>
+      }
+      @case ('urgencias') {
+        <div role="tabpanel" id="panel-urgencias" aria-labelledby="tab-urgencias">
+          <app-rda-urgencias />
+        </div>
+      }
+      @case ('reglas') {
+        <div role="tabpanel" id="panel-reglas" aria-labelledby="tab-reglas">
+          <app-reglas-transversales />
+        </div>
+      }
+    }
+  </div>
+</div>

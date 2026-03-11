@@ -1,0 +1,70 @@
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold text-slate-800 border-b pb-2">1. Conectividad, Criptografía y Red</h2>
+  <p class="text-slate-600">Según el anexo SIG-F05, la conexión opera en fases (Fase 1: VPN, Fase 2: X-Road) y exige esquemas criptográficos específicos entre la IPS y la Secretaría de Salud.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Con Firewall -->
+    <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+      <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+        <lucide-icon [img]="Server" [size]="20" class="text-blue-500" />
+        Conexión IPS con Firewall
+      </h3>
+      <p class="text-xs text-slate-500 mb-4">VPN Site-to-Site (IPSec) recomendada.</p>
+
+      <div class="space-y-3">
+        <div class="bg-slate-50 p-3 rounded">
+          <span class="text-xs font-bold text-slate-700 block mb-1">Negociación Fase I</span>
+          <ul class="text-xs text-slate-600 list-disc list-inside">
+            <li>Cifrado: <strong>AES-128</strong> y <strong>AES-256</strong>.</li>
+            <li>Autenticación mínima: <strong>SHA-256</strong>.</li>
+            <li>Definir mín. 2 grupos de autenticación.</li>
+          </ul>
+        </div>
+        <div class="bg-slate-50 p-3 rounded">
+          <span class="text-xs font-bold text-slate-700 block mb-1">Negociación Fase II</span>
+          <ul class="text-xs text-slate-600 list-disc list-inside">
+            <li>Autenticación mínima: <strong>SHA-1</strong>.</li>
+            <li>Especificar IPs de origen y destino.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sin Firewall -->
+    <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+      <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+        <lucide-icon [img]="Network" [size]="20" class="text-amber-500" />
+        Conexión IPS sin Firewall
+      </h3>
+      <p class="text-xs text-slate-500 mb-4">Mecanismo Cliente-Sitio (VPN SSL).</p>
+
+      <ul class="space-y-2 text-sm text-slate-600">
+        <li class="flex items-start gap-2">
+          <lucide-icon [img]="CheckCircle2" [size]="16" class="text-emerald-500 mt-0.5 shrink-0" />
+          <span>Mecanismo de autenticación triple: <strong>Usuario, contraseña y Token</strong>.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <lucide-icon [img]="CheckCircle2" [size]="16" class="text-emerald-500 mt-0.5 shrink-0" />
+          <span>Certificado de seguridad con algoritmo mínimo <strong>SHA-256</strong>.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <lucide-icon [img]="CheckCircle2" [size]="16" class="text-emerald-500 mt-0.5 shrink-0" />
+          <span>Configurar un puerto TCP <strong>diferente al estándar</strong>.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <lucide-icon [img]="CheckCircle2" [size]="16" class="text-emerald-500 mt-0.5 shrink-0" />
+          <span>Políticas de instalación mínima en estaciones (Antivirus).</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="bg-indigo-50 p-5 rounded-lg border border-indigo-100">
+    <h3 class="font-bold text-indigo-900 mb-2">Exigencias de Alta Disponibilidad (HA)</h3>
+    <p class="text-sm text-indigo-800">
+      Tanto la IPS como la Secretaría de Salud deben disponer de un <strong>enlace de datos dedicado en Alta Disponibilidad</strong> y hardware de seguridad perimetral redundante. Las validaciones en la capa nacional incluyen un <strong>WAF (Web Application Firewall)</strong> para detectar inyecciones SQL, ataques XSS y CSRF antes de tocar el API Gateway.
+    </p>
+  </div>
+</div>

@@ -1,0 +1,46 @@
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold text-slate-800 border-b pb-2">2. Autenticación y Despliegue Operativo</h2>
+  <p class="text-slate-600">El acceso a la plataforma requiere una coordinación directa con la Secretaría de Salud, quien valida la existencia de la IPS antes de solicitar las credenciales al MSPS.</p>
+
+  <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+    <div class="p-4 bg-slate-800 text-white font-bold flex items-center gap-2">
+      <lucide-icon [img]="Key" [size]="18" />
+      Flujo de Habilitación y Autenticación
+    </div>
+    <div class="p-6 space-y-6 relative">
+      <!-- Línea conectora -->
+      <div class="absolute left-10 top-10 bottom-10 w-0.5 bg-slate-200 z-0" aria-hidden="true"></div>
+
+      @for (step of steps; track step.num) {
+        <div class="flex gap-4 items-start relative z-10">
+          <div
+            class="text-white rounded-full w-8 h-8 flex items-center justify-center shrink-0 font-bold shadow-md"
+            [class.bg-blue-500]="!step.isFinal"
+            [class.bg-emerald-500]="step.isFinal"
+          >
+            {{ step.num }}
+          </div>
+          <div
+            class="p-4 rounded-lg border flex-1"
+            [class.bg-slate-50]="!step.isFinal" [class.border-slate-100]="!step.isFinal"
+            [class.bg-emerald-50]="step.isFinal" [class.border-emerald-100]="step.isFinal"
+          >
+            <h4 class="font-bold" [class.text-slate-800]="!step.isFinal" [class.text-emerald-900]="step.isFinal">
+              {{ step.title }}
+            </h4>
+            <p class="text-sm mt-1" [class.text-slate-600]="!step.isFinal" [class.text-emerald-800]="step.isFinal">
+              {{ step.description }}
+            </p>
+            @if (step.isFinal) {
+              <ul class="text-sm list-disc list-inside text-emerald-700 space-y-1 mt-3">
+                @for (item of testItems; track item) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

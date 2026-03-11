@@ -1,0 +1,44 @@
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold text-slate-800 border-b pb-2">8. Integración RIPS y FEV (Res. 2275 de 2023)</h2>
+  <p class="text-slate-600">Paralelo al RDA clínico, el área financiera debe implementar el envío del <strong>Registro Individual de Prestación de Servicios de Salud (RIPS)</strong> como soporte de la Factura Electrónica de Venta (FEV).</p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="space-y-4">
+      <div class="bg-slate-50 p-4 rounded border border-slate-200">
+        <h4 class="font-bold text-slate-800">Estructura del RIPS (JSON)</h4>
+        <p class="text-sm text-slate-600 mt-2">Contiene un objeto transaccional principal, un arreglo de usuarios, y dentro de cada usuario, un objeto de servicios que agrupa: <em>consultas, procedimientos, urgencias, hospitalizacion, recienNacidos, medicamentos y otrosServicios</em>.</p>
+      </div>
+
+      <div class="bg-emerald-50 p-4 rounded border border-emerald-200">
+        <h4 class="font-bold text-emerald-800">Flujo CUV y FEV</h4>
+        <ol class="list-decimal list-inside text-sm text-emerald-900 mt-2 space-y-2">
+          @for (step of flowSteps; track $index) {
+            <li>{{ step }}</li>
+          }
+        </ol>
+      </div>
+
+      <div class="bg-rose-50 p-4 rounded border border-rose-200">
+        <h4 class="font-bold text-rose-800">Identificador FAB05c</h4>
+        <p class="text-sm text-rose-900 mt-2">El software que genera el RIPS debe estar registrado. Un error común es: <em>"El identificador del software no corresponde..."</em>. Exige validar el código del proveedor tecnológico ante la DIAN y el Ministerio.</p>
+      </div>
+    </div>
+
+    <div class="bg-slate-800 rounded-lg p-5 text-slate-200">
+      <h4 class="font-bold text-white mb-3 flex items-center gap-2">
+        <lucide-icon [img]="Server" [size]="18" />
+        Recomendaciones de Arquitectura
+      </h4>
+      <ul class="space-y-3 text-sm">
+        <li class="flex gap-2">
+          <lucide-icon [img]="CheckCircle2" [size]="16" class="text-emerald-400 mt-0.5 shrink-0" />
+          <span><strong>Colas Asíncronas:</strong> Implementar envíos en background (RabbitMQ, Kafka, Azure Service Bus) con <em>backoff exponencial</em> para reintentos en caso de caídas del API del Ministerio. ¡Nunca bloquear la atención médica en tiempo real!</span>
+        </li>
+        <li class="flex gap-2">
+          <lucide-icon [img]="CheckCircle2" [size]="16" class="text-emerald-400 mt-0.5 shrink-0" />
+          <span><strong>Validación Local Previa:</strong> Asegurar que el sistema HIS bloquee el registro si los códigos CUPS o CIE-10 digitados por el médico no existen en el servidor terminológico local (previamente sincronizado con Minsalud).</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

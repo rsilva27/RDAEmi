@@ -1,0 +1,178 @@
+<div class="space-y-6">
+  <div>
+    <h2 class="text-2xl font-bold text-slate-800 mb-2">Topología de Arquitectura (Lineamiento SIG-F05)</h2>
+    <p class="text-slate-600">Arquitectura de tres niveles: Prestador (IPS) → Nodo Territorial (Secretaría) → Nodo Nacional (MSPS). Interactúa con el diagrama para ver especificaciones.</p>
+  </div>
+
+  <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 overflow-x-auto">
+    <div class="flex flex-col xl:flex-row items-stretch gap-4 min-w-[800px]">
+
+      <!-- Entorno IPS -->
+      <div class="flex-1 flex flex-col gap-2">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider text-center">Entorno IPS</h3>
+        <div
+          (mouseenter)="setNode('his')" (mouseleave)="setNode(null)"
+          (focus)="setNode('his')" (blur)="setNode(null)"
+          tabindex="0"
+          role="button"
+          aria-label="HIS / ERP IPS"
+          class="p-4 rounded-lg border-2 transition-all cursor-pointer flex flex-col items-center justify-center h-full bg-white"
+          [class.border-blue-500]="activeNode() === 'his'" [class.shadow-lg]="activeNode() === 'his'" [class.scale-105]="activeNode() === 'his'"
+          [class.border-slate-200]="activeNode() !== 'his'"
+        >
+          <lucide-icon [img]="Database" [size]="36" class="text-blue-600 mb-2" />
+          <span class="font-bold text-sm text-slate-800 text-center">HIS / ERP IPS</span>
+        </div>
+      </div>
+
+      <!-- Canal 1 -->
+      <div class="flex flex-col items-center justify-center gap-1">
+        <div
+          (mouseenter)="setNode('vpn1')" (mouseleave)="setNode(null)"
+          (focus)="setNode('vpn1')" (blur)="setNode(null)"
+          tabindex="0"
+          role="button"
+          aria-label="Túnel VPN IPS - Secretaría"
+          class="p-3 rounded-full border-2 border-dashed transition-all cursor-pointer bg-white"
+          [class.border-emerald-500]="activeNode() === 'vpn1'" [class.shadow-lg]="activeNode() === 'vpn1'"
+          [class.border-slate-300]="activeNode() !== 'vpn1'"
+        >
+          <lucide-icon [img]="Lock" [size]="20" class="text-emerald-600" />
+        </div>
+        <lucide-icon [img]="ArrowRight" [size]="16" class="text-slate-400" />
+      </div>
+
+      <!-- Nodo Territorial -->
+      <div class="flex-[1.2] flex flex-col gap-2">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider text-center">Nodo Territorial</h3>
+        <div
+          (mouseenter)="setNode('secSalud')" (mouseleave)="setNode(null)"
+          (focus)="setNode('secSalud')" (blur)="setNode(null)"
+          tabindex="0"
+          role="button"
+          aria-label="Secretaría de Salud"
+          class="p-4 rounded-lg border-2 transition-all cursor-pointer flex flex-col items-center justify-center h-full bg-slate-800 text-white"
+          [class.border-blue-400]="activeNode() === 'secSalud'" [class.shadow-lg]="activeNode() === 'secSalud'" [class.scale-105]="activeNode() === 'secSalud'"
+          [class.border-slate-700]="activeNode() !== 'secSalud'"
+        >
+          <lucide-icon [img]="Building2" [size]="36" class="text-blue-300 mb-2" />
+          <span class="font-bold text-sm text-center">Secretaría de Salud</span>
+          <span class="text-[10px] text-slate-400 text-center mt-1">Enrutador e Intermediario</span>
+        </div>
+      </div>
+
+      <!-- Canal 2 -->
+      <div class="flex flex-col items-center justify-center gap-1">
+        <div
+          (mouseenter)="setNode('vpn2')" (mouseleave)="setNode(null)"
+          (focus)="setNode('vpn2')" (blur)="setNode(null)"
+          tabindex="0"
+          role="button"
+          aria-label="Túnel VPN Secretaría - MSPS"
+          class="p-3 rounded-full border-2 border-dashed transition-all cursor-pointer bg-white"
+          [class.border-emerald-500]="activeNode() === 'vpn2'" [class.shadow-lg]="activeNode() === 'vpn2'"
+          [class.border-slate-300]="activeNode() !== 'vpn2'"
+        >
+          <lucide-icon [img]="Lock" [size]="20" class="text-emerald-600" />
+        </div>
+        <lucide-icon [img]="ArrowRight" [size]="16" class="text-slate-400" />
+      </div>
+
+      <!-- Nube MSPS -->
+      <div class="flex-[3] flex flex-col gap-2">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider text-center">Nube MSPS (Nacional)</h3>
+        <div class="p-3 rounded-xl border border-blue-100 bg-blue-50/50 flex flex-col gap-3 relative h-full">
+
+          <!-- Capa Perimetral -->
+          <div
+            (mouseenter)="setNode('perimetral')" (mouseleave)="setNode(null)"
+            (focus)="setNode('perimetral')" (blur)="setNode(null)"
+            tabindex="0"
+            role="button"
+            aria-label="Firewall + WAF + Balanceador"
+            class="p-2 bg-white rounded border-2 transition-all cursor-pointer flex items-center justify-center gap-2"
+            [class.border-red-400]="activeNode() === 'perimetral'" [class.shadow-md]="activeNode() === 'perimetral'"
+            [class.border-red-100]="activeNode() !== 'perimetral'"
+          >
+            <lucide-icon [img]="ShieldAlert" [size]="18" class="text-red-500" />
+            <span class="font-bold text-xs text-red-900">Firewall + WAF + Balanceador</span>
+          </div>
+
+          <div class="flex gap-2">
+            <div
+              (mouseenter)="setNode('gateway')" (mouseleave)="setNode(null)"
+              (focus)="setNode('gateway')" (blur)="setNode(null)"
+              tabindex="0"
+              role="button"
+              aria-label="API Gateway"
+              class="flex-1 p-3 bg-white rounded border-2 transition-all cursor-pointer flex flex-col items-center gap-1"
+              [class.border-indigo-500]="activeNode() === 'gateway'" [class.shadow-md]="activeNode() === 'gateway'"
+              [class.border-slate-200]="activeNode() !== 'gateway'"
+            >
+              <lucide-icon [img]="Shield" [size]="20" class="text-indigo-600" />
+              <span class="font-bold text-xs text-center">API Gateway</span>
+            </div>
+            <div
+              (mouseenter)="setNode('fhir')" (mouseleave)="setNode(null)"
+              (focus)="setNode('fhir')" (blur)="setNode(null)"
+              tabindex="0"
+              role="button"
+              aria-label="Motor FHIR R4"
+              class="flex-1 p-3 bg-white rounded border-2 transition-all cursor-pointer flex flex-col items-center gap-1"
+              [class.border-cyan-500]="activeNode() === 'fhir'" [class.shadow-md]="activeNode() === 'fhir'"
+              [class.border-slate-200]="activeNode() !== 'fhir'"
+            >
+              <lucide-icon [img]="Server" [size]="20" class="text-cyan-600" />
+              <span class="font-bold text-xs text-center">Motor FHIR R4</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mt-1">
+            <div
+              (mouseenter)="setNode('validador')" (mouseleave)="setNode(null)"
+              (focus)="setNode('validador')" (blur)="setNode(null)"
+              tabindex="0"
+              role="button"
+              aria-label="Validadores (EVOL, REPS, FHIR)"
+              class="p-2 bg-white rounded text-center border-2 transition-all cursor-pointer"
+              [class.border-orange-400]="activeNode() === 'validador'"
+              [class.border-slate-100]="activeNode() !== 'validador'"
+            >
+              <span class="text-[11px] font-bold text-slate-700">Validadores (EVOL, REPS, FHIR)</span>
+            </div>
+            <div
+              (mouseenter)="setNode('terms')" (mouseleave)="setNode(null)"
+              (focus)="setNode('terms')" (blur)="setNode(null)"
+              tabindex="0"
+              role="button"
+              aria-label="Servidor Terminológico"
+              class="p-2 bg-white rounded text-center border-2 transition-all cursor-pointer"
+              [class.border-violet-400]="activeNode() === 'terms'"
+              [class.border-slate-100]="activeNode() !== 'terms'"
+            >
+              <span class="text-[11px] font-bold text-slate-700">Servidor Terminológico</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel de Detalles Dinámico -->
+  <div class="bg-white border-l-4 border-blue-500 p-6 rounded-r-lg shadow-sm min-h-[120px] flex flex-col justify-center transition-all" aria-live="polite">
+    @if (activeDetail(); as detail) {
+      <div>
+        <h4 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <lucide-icon [img]="ChevronRight" class="text-blue-500" [size]="20" />
+          {{ detail.title }}
+        </h4>
+        <p class="text-slate-600 mt-2 ml-7">{{ detail.desc }}</p>
+      </div>
+    } @else {
+      <p class="text-slate-400 text-center italic">
+        Pasa el cursor sobre los componentes del diagrama para ver las especificaciones de arquitectura.
+      </p>
+    }
+  </div>
+</div>

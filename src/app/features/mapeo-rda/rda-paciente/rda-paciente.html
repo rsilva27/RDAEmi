@@ -1,0 +1,177 @@
+<div class="space-y-6">
+
+  <!-- Badge -->
+  <div class="flex items-center gap-3">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">
+      <lucide-icon [img]="Heart" [size]="14" /> RDA de Paciente (Evento Básico)
+    </span>
+    <span class="text-xs text-slate-500">Atención clínica rápida o básica</span>
+  </div>
+
+  <!-- A. Identificación -->
+  <section>
+    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+      <span class="bg-blue-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">A</span>
+      Identificación
+      <span class="text-xs font-normal text-slate-500 ml-1">Patient &amp; Organization</span>
+    </h3>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <!-- Datos del Paciente -->
+      <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+        <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+          <lucide-icon [img]="User" [size]="16" class="text-blue-600" />
+          <span class="font-bold text-sm text-slate-800">Datos del Paciente</span>
+        </div>
+        <div class="p-4">
+          <table class="w-full text-sm" role="table">
+            <tbody>
+              <tr class="border-b border-slate-100">
+                <td class="py-2 pr-3 font-medium text-slate-700 w-1/3">Tipo documento</td>
+                <td class="py-2 text-slate-600">CC, TI, CE, PA</td>
+              </tr>
+              <tr class="border-b border-slate-100">
+                <td class="py-2 pr-3 font-medium text-slate-700">Número documento</td>
+                <td class="py-2 text-slate-600">Identificador único</td>
+              </tr>
+              <tr class="border-b border-slate-100">
+                <td class="py-2 pr-3 font-medium text-slate-700">Nombres</td>
+                <td class="py-2 text-slate-600">Primer y segundo nombre</td>
+              </tr>
+              <tr class="border-b border-slate-100">
+                <td class="py-2 pr-3 font-medium text-slate-700">Apellidos</td>
+                <td class="py-2 text-slate-600">Primer y segundo apellido</td>
+              </tr>
+              <tr class="border-b border-slate-100">
+                <td class="py-2 pr-3 font-medium text-slate-700">Fecha nacimiento</td>
+                <td class="py-2 text-slate-600"><code class="bg-slate-100 px-1 rounded text-xs">AAAA-MM-DD</code></td>
+              </tr>
+              <tr class="border-b border-slate-100">
+                <td class="py-2 pr-3 font-medium text-slate-700">Sexo biológico</td>
+                <td class="py-2 text-slate-600">Hombre, Mujer, Indeterminado</td>
+              </tr>
+              <tr>
+                <td class="py-2 pr-3 font-medium text-slate-700">Género <span class="text-slate-400 text-[10px]">(opc.)</span></td>
+                <td class="py-2 text-slate-600">Identidad de género</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ubicación y Prestador -->
+      <div class="space-y-4">
+        <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+          <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+            <lucide-icon [img]="MapPin" [size]="16" class="text-emerald-600" />
+            <span class="font-bold text-sm text-slate-800">Ubicación</span>
+          </div>
+          <div class="p-4 text-sm space-y-2">
+            <div class="flex justify-between"><span class="text-slate-700 font-medium">País de residencia</span><span class="text-slate-500">ISO 3166-1</span></div>
+            <div class="flex justify-between"><span class="text-slate-700 font-medium">Municipio</span><span class="text-slate-500">Código DANE</span></div>
+            <div class="flex justify-between"><span class="text-slate-700 font-medium">Zona territorial</span><span class="text-slate-500">Urbana / Rural</span></div>
+          </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+          <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+            <lucide-icon [img]="Building" [size]="16" class="text-indigo-600" />
+            <span class="font-bold text-sm text-slate-800">EPS y Prestador</span>
+          </div>
+          <div class="p-4 text-sm space-y-2">
+            <div class="flex justify-between"><span class="text-slate-700 font-medium">EPS / Asegurador</span><span class="text-slate-500">Código SGSSS</span></div>
+            <div class="flex justify-between"><span class="text-slate-700 font-medium">Prestador</span><span class="text-slate-500">Código habilitación REPS</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Patient JSON Example -->
+    <app-code-block title="Ejemplo recurso Patient (simplificado)" [code]="patientExample" />
+  </section>
+
+  <!-- B. Encounter -->
+  <section>
+    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+      <span class="bg-blue-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">B</span>
+      Detalles de la Atención
+      <span class="text-xs font-normal text-slate-500 ml-1">Encounter</span>
+    </h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white border border-slate-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <lucide-icon [img]="Clock" [size]="16" class="text-blue-600" />
+          <span class="font-bold text-sm text-slate-800">Tiempos</span>
+        </div>
+        <p class="text-sm text-slate-600">Fecha y hora de <strong>inicio</strong> y <strong>finalización</strong> de la atención.</p>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-lg p-4">
+        <span class="font-bold text-sm text-slate-800 block mb-3">Modalidad de realización</span>
+        @for (mod of modalidades; track mod.code) {
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded">{{ mod.code }}</span>
+            <span class="text-sm text-slate-600">{{ mod.label }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-lg p-4">
+        <span class="font-bold text-sm text-slate-800 block mb-3">Entorno y Vía de Ingreso</span>
+        <div class="space-y-2 text-sm">
+          <div><span class="font-medium text-slate-700">Entorno:</span> <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded">01</span> Hogar</div>
+          <div><span class="font-medium text-slate-700">Vía:</span> <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-1.5 py-0.5 rounded">01</span> Consulta Ext. ó <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-1.5 py-0.5 rounded">05</span> Atención Inmediata</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- C. Hallazgos Clínicos -->
+  <section>
+    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+      <span class="bg-blue-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">C</span>
+      Hallazgos Clínicos
+    </h3>
+
+    <div class="space-y-4">
+      <!-- Alergias -->
+      <div class="bg-white border border-slate-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <lucide-icon [img]="Stethoscope" [size]="16" class="text-rose-500" />
+          <span class="font-bold text-sm text-slate-800">Alergias</span>
+          <span class="text-xs text-slate-500">AllergyIntolerance</span>
+        </div>
+        <p class="text-sm text-slate-600 mb-3">Código que indica tipo de alergia y nombre del alérgeno. Tipos: <span class="bg-rose-50 text-rose-700 px-1.5 rounded text-xs font-medium">01</span> Medicamento, <span class="bg-rose-50 text-rose-700 px-1.5 rounded text-xs font-medium">02</span> Alimento, etc.</p>
+        <div class="bg-amber-50 border-l-3 border-amber-400 p-3 rounded-r text-sm text-amber-800">
+          <strong>Sin alergias:</strong> Enviar sección vacía con <code class="bg-white px-1 rounded text-xs">"emptyReason": &#123;"code": "nilknown"&#125;</code>
+        </div>
+      </div>
+
+      <!-- Diagnósticos -->
+      <div class="bg-white border border-slate-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <lucide-icon [img]="Stethoscope" [size]="16" class="text-indigo-500" />
+          <span class="font-bold text-sm text-slate-800">Diagnósticos</span>
+          <span class="text-xs text-slate-500">Condition (CIE-10)</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          @for (tipo of tiposDx; track tipo.code) {
+            <span class="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 text-xs font-medium px-2.5 py-1 rounded-full">
+              <span class="bg-indigo-200 text-indigo-800 text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">{{ tipo.code }}</span>
+              {{ tipo.label }}
+            </span>
+          }
+        </div>
+        <p class="text-sm text-slate-600 mt-3">Código CIE-10 principal al egreso + nombre del diagnóstico.</p>
+      </div>
+
+      <!-- Profesional -->
+      <div class="bg-white border border-slate-200 rounded-lg p-4">
+        <span class="font-bold text-sm text-slate-800">Profesional tratante</span>
+        <span class="text-xs text-slate-500 ml-2">Practitioner</span>
+        <p class="text-sm text-slate-600 mt-2">Tipo y número de documento del talento humano en salud que realiza el egreso. Se valida contra <strong>RETHUS</strong> en tiempo real.</p>
+      </div>
+    </div>
+  </section>
+</div>

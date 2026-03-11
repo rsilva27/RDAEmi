@@ -1,0 +1,155 @@
+<div class="space-y-6">
+
+  <!-- Badge -->
+  <div class="flex items-center gap-3">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full">
+      <lucide-icon [img]="ClipboardList" [size]="14" /> RDA de Consulta Externa
+    </span>
+    <span class="text-xs text-slate-500">Visita domiciliaria programada</span>
+  </div>
+
+  <!-- A. Reglas de Mapeo Críticas -->
+  <section>
+    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+      <span class="bg-emerald-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">A</span>
+      Reglas de Mapeo Críticas para Servicios a Domicilio
+    </h3>
+
+    <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <lucide-icon [img]="Home" [size]="18" class="text-emerald-600" />
+            <span class="font-bold text-emerald-900">Modalidad (Elem. 18.1)</span>
+          </div>
+          <p class="text-sm text-emerald-800">Obligatorio código <span class="bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.5 rounded text-xs">03</span> — Extramural domiciliaria</p>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <lucide-icon [img]="Home" [size]="18" class="text-emerald-600" />
+            <span class="font-bold text-emerald-900">Entorno (Elem. 19)</span>
+          </div>
+          <p class="text-sm text-emerald-800">Cuando modalidad = extramural domiciliaria, entorno obligatorio <span class="bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.5 rounded text-xs">01</span> — Hogar</p>
+        </div>
+      </div>
+      <div class="mt-4 bg-white/60 rounded p-3 border border-emerald-100">
+        <p class="text-xs text-emerald-700"><strong>Importante:</strong> La combinación Modalidad 03 + Entorno 01 es la que identifica su modelo de servicio ante el Ministerio. Cualquier otra combinación generará rechazo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- B. Tiempos, Causas y Riesgos -->
+  <section>
+    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+      <span class="bg-emerald-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">B</span>
+      Tiempos, Causas y Riesgos
+    </h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white border border-slate-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <lucide-icon [img]="Clock" [size]="16" class="text-blue-600" />
+          <span class="font-bold text-sm text-slate-800">Tiempos</span>
+        </div>
+        <p class="text-sm text-slate-600">Fecha y hora exacta de <strong>inicio y finalización</strong> del servicio en el domicilio.</p>
+
+        <div class="mt-4">
+          <div class="flex items-center gap-2 mb-2">
+            <lucide-icon [img]="AlertCircle" [size]="16" class="text-amber-500" />
+            <span class="font-bold text-sm text-slate-800">Causa de atención</span>
+          </div>
+          <p class="text-sm text-slate-600">Código según tabla oficial (ej. enfermedad general, accidente de trabajo, etc.)</p>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-lg p-4">
+        <span class="font-bold text-sm text-slate-800 block mb-3">Factores de Riesgo Identificados</span>
+        <div class="flex flex-wrap gap-2">
+          @for (factor of factoresRiesgo; track factor.code) {
+            <span class="inline-flex items-center gap-1 bg-slate-50 text-slate-700 text-xs font-medium px-2 py-1 rounded border border-slate-200">
+              <span class="bg-amber-100 text-amber-800 text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">{{ factor.code }}</span>
+              {{ factor.label }}
+            </span>
+          }
+        </div>
+        <p class="text-xs text-slate-500 mt-3">Si no hay riesgo identificado, puede enviarse vacío según el escenario.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- C. Plan de Manejo Médico -->
+  <section>
+    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+      <span class="bg-emerald-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">C</span>
+      Plan de Manejo Médico
+    </h3>
+
+    <div class="space-y-4">
+      <!-- Diagnósticos Relacionados -->
+      <div class="bg-white border border-slate-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <lucide-icon [img]="ClipboardList" [size]="16" class="text-indigo-600" />
+          <span class="font-bold text-sm text-slate-800">Diagnósticos Relacionados</span>
+          <span class="text-xs text-slate-500">Condition (CIE-10)</span>
+        </div>
+        <p class="text-sm text-slate-600">Aparte del principal, se deben enviar códigos CIE-10 de diagnósticos confirmados o presuntivos relacionados.</p>
+      </div>
+
+      <!-- Fórmula de Medicamentos -->
+      <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+        <div class="px-4 py-3 bg-emerald-50 border-b border-emerald-100 flex items-center gap-2">
+          <lucide-icon [img]="Pill" [size]="16" class="text-emerald-600" />
+          <span class="font-bold text-sm text-emerald-900">Fórmula de Medicamentos</span>
+          <span class="text-xs text-emerald-600">MedicationRequest</span>
+        </div>
+        <div class="p-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
+            @for (item of medicamentoFields; track item.field) {
+              <div class="flex items-baseline gap-2 py-1.5 border-b border-slate-50">
+                <span class="text-xs font-bold text-slate-700 w-36 shrink-0">{{ item.field }}</span>
+                <span class="text-xs text-slate-500">{{ item.desc }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Procedimientos -->
+      <div class="bg-white border border-slate-200 rounded-lg p-4">
+        <span class="font-bold text-sm text-slate-800">Órdenes de Procedimientos</span>
+        <span class="text-xs text-slate-500 ml-2">ServiceRequest</span>
+        <p class="text-sm text-slate-600 mt-2">Código <strong>CUPS</strong> del procedimiento ordenado, nombre y finalidad de la tecnología en salud.</p>
+      </div>
+
+      <!-- Condición al egreso -->
+      <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+        <span class="font-bold text-sm text-slate-800">Condición al Egreso</span>
+        <p class="text-sm text-slate-600 mt-2">Destino del usuario al terminar la consulta, código del prestador a donde se remite (si aplica), y <strong>días de incapacidad</strong> generados.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- D. Soporte Documental -->
+  <section>
+    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-4">
+      <span class="bg-emerald-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">D</span>
+      Soporte Documental
+      <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Obligatorio</span>
+    </h3>
+
+    <div class="bg-rose-50 border border-rose-200 rounded-lg p-5">
+      <div class="flex gap-3">
+        <lucide-icon [img]="FileDown" [size]="24" class="text-rose-500 shrink-0 mt-0.5" />
+        <div>
+          <h4 class="font-bold text-rose-900 mb-1">Resumen Clínico de Atención (PDF)</h4>
+          <ul class="text-sm text-rose-800 space-y-1.5 list-disc list-inside">
+            <li>Formato <strong>application/pdf</strong> legible, con capa de texto y <strong>sin clave</strong>.</li>
+            <li>Codificado en <strong>Base64</strong> dentro del recurso <code class="bg-white px-1 rounded text-xs">DocumentReference</code>.</li>
+            <li>Debe cumplir con los contenidos del <strong>Decreto 780 de 2016</strong>.</li>
+            <li>Tamaño máximo: <strong>5 MB</strong>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

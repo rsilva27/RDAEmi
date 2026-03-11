@@ -1,0 +1,199 @@
+<div class="space-y-8">
+
+  <!-- Header -->
+  <div>
+    <div class="flex items-center gap-2 mb-2">
+      <span class="inline-block px-2.5 py-0.5 bg-indigo-100 text-indigo-800 text-[10px] font-bold rounded-full uppercase tracking-wide">Ciclo de Vida Completo</span>
+      <span class="inline-block px-2.5 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-full uppercase tracking-wide">API REST / IHCE</span>
+    </div>
+    <h2 class="text-2xl font-bold text-slate-800 mb-1">Flujo Cronológico de Integración RDA</h2>
+    <p class="text-slate-600 text-sm">Secuencia ordenada de endpoints que tu sistema debe seguir desde la autenticación hasta la consulta de historia clínica nacional.</p>
+  </div>
+
+  <!-- Global Headers Card -->
+  <div class="bg-slate-900 rounded-xl p-5 text-white">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="bg-slate-700 p-2 rounded-lg">
+        <lucide-icon [img]="Lock" [size]="18" class="text-amber-400" />
+      </div>
+      <div>
+        <h3 class="font-bold text-sm">Cabeceras Obligatorias (Todos los endpoints excepto autenticación)</h3>
+        <p class="text-xs text-slate-400">Se deben enviar siempre en cada petición a la API de IHCE</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 gap-2">
+      @for (h of headers; track h.key) {
+        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 bg-slate-800 rounded-lg px-4 py-2.5">
+          <code class="text-amber-300 text-xs font-bold whitespace-nowrap">{{ h.key }}:</code>
+          <code class="text-slate-300 text-xs">{{ h.value }}</code>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Expand/Collapse Controls -->
+  <div class="flex justify-end gap-2">
+    <button type="button" (click)="expandAll()" class="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors">Expandir todo</button>
+    <span class="text-slate-300">|</span>
+    <button type="button" (click)="collapseAll()" class="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors">Colapsar todo</button>
+  </div>
+
+  <!-- Timeline -->
+  <div class="relative">
+    <!-- Vertical line -->
+    <div class="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-400 via-blue-400 via-emerald-400 via-red-400 to-violet-400 z-0" aria-hidden="true"></div>
+
+    <div class="space-y-4 relative z-10">
+      @for (phase of phases; track phase.id; let isLast = $last) {
+
+        <!-- Phase Card -->
+        <div class="ml-14 relative">
+          <!-- Timeline node -->
+          <div
+            class="absolute -left-14 top-0 w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold shadow-lg"
+            [class]="phase.iconBgClass"
+          >
+            <lucide-icon [img]="phase.icon" [size]="22" />
+          </div>
+
+          <!-- Card -->
+          <div class="rounded-xl border overflow-hidden transition-all" [class]="phase.borderClass">
+            <!-- Header (clickable) -->
+            <button
+              type="button"
+              class="w-full flex items-center gap-3 px-5 py-4 text-left transition-all"
+              [class]="phase.bgClass"
+              (click)="togglePhase(phase.id)"
+              [attr.aria-expanded]="isExpanded(phase.id)"
+              [attr.aria-controls]="'content-' + phase.id"
+            >
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" [class]="phase.badgeBgClass + ' ' + phase.badgeTextClass">
+                    Fase {{ phase.number }}
+                  </span>
+                  <span class="text-xs text-slate-500">{{ phase.subtitle }}</span>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">{{ phase.title }}</h3>
+              </div>
+              @if (isExpanded(phase.id)) {
+                <lucide-icon [img]="ChevronDown" [size]="20" class="text-slate-400 shrink-0 transition-transform" />
+              } @else {
+                <lucide-icon [img]="ChevronRight" [size]="20" class="text-slate-400 shrink-0 transition-transform" />
+              }
+            </button>
+
+            <!-- Content (expandable) -->
+            @if (isExpanded(phase.id)) {
+              <div [id]="'content-' + phase.id" class="bg-white px-5 py-5 border-t" [class]="phase.borderClass">
+                <p class="text-sm text-slate-600 mb-5">{{ phase.description }}</p>
+
+                <!-- Token example for Phase 1 -->
+                @if (phase.id === 'fase-1') {
+                  <app-code-block title="Solicitud de token OAuth2 (Client Credentials)" [code]="tokenExample" />
+                  <div class="flex items-center gap-2 mt-3 bg-amber-50 border border-amber-100 rounded-lg p-3">
+                    <lucide-icon [img]="Clock" [size]="16" class="text-amber-500 shrink-0" />
+                    <p class="text-xs text-amber-800"><strong>Vigencia:</strong> El token expira en ~1 hora (3599s). Tu sistema debe renovarlo automáticamente antes de expirar.</p>
+                  </div>
+                }
+
+                <!-- Retry notice for Phase 4 -->
+                @if (phase.id === 'fase-4') {
+                  <div class="flex items-start gap-3 mb-5 bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <lucide-icon [img]="WifiOff" [size]="18" class="text-orange-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p class="text-sm text-orange-900 font-medium">En caso de falla temporal de red</p>
+                      <p class="text-xs text-orange-700 mt-1">Se debe reintentar asincrónicamente con backoff exponencial. Encolar localmente y reenviar al recuperar conectividad.</p>
+                    </div>
+                  </div>
+                }
+
+                <!-- Endpoints -->
+                <div class="space-y-3">
+                  @for (ep of phase.endpoints; track ep.path) {
+                    <div class="border border-slate-200 rounded-lg overflow-hidden hover:shadow-sm transition-shadow">
+                      <div class="flex flex-col md:flex-row md:items-start gap-3 px-4 py-3">
+                        <!-- Method badge -->
+                        <div class="shrink-0 pt-0.5">
+                          <span
+                            class="inline-block px-2.5 py-1 rounded text-xs font-bold border"
+                            [class.bg-blue-500\/10]="ep.method === 'POST'"
+                            [class.text-blue-600]="ep.method === 'POST'"
+                            [class.border-blue-500\/20]="ep.method === 'POST'"
+                            [class.bg-emerald-500\/10]="ep.method === 'GET'"
+                            [class.text-emerald-600]="ep.method === 'GET'"
+                            [class.border-emerald-500\/20]="ep.method === 'GET'"
+                          >
+                            {{ ep.method }}
+                          </span>
+                        </div>
+                        <!-- Endpoint detail -->
+                        <div class="flex-1 min-w-0">
+                          <code class="text-sm font-mono text-slate-800 bg-slate-50 px-2 py-1 rounded break-all">{{ ep.path }}</code>
+                          <p class="text-sm text-slate-600 mt-1.5">{{ ep.description }}</p>
+                          @if (ep.body) {
+                            <div class="mt-2 flex items-start gap-1.5">
+                              <span class="text-[10px] font-bold text-slate-500 uppercase bg-slate-100 px-1.5 py-0.5 rounded shrink-0 mt-0.5">Body</span>
+                              <span class="text-xs text-slate-500">{{ ep.body }}</span>
+                            </div>
+                          }
+                          @if (ep.note) {
+                            <p class="text-xs text-slate-400 mt-1.5 italic">{{ ep.note }}</p>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <!-- Response note for Phase 4 -->
+                @if (phase.responseNote) {
+                  <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="flex items-start gap-2 bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                      <lucide-icon [img]="CheckCircle2" [size]="18" class="text-emerald-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p class="text-xs font-bold text-emerald-900">HTTP 200 OK — Envío exitoso</p>
+                        <p class="text-xs text-emerald-700 mt-0.5">Retorna el <strong>código VIDA</strong> (Validador Individual de Atención), que es el recibo oficial de éxito.</p>
+                      </div>
+                    </div>
+                    <div class="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg p-3">
+                      <lucide-icon [img]="AlertTriangle" [size]="18" class="text-red-500 shrink-0 mt-0.5" />
+                      <div>
+                        <p class="text-xs font-bold text-red-900">HTTP 400 / 409 — Error</p>
+                        <p class="text-xs text-red-700 mt-0.5">Retorna un <strong>OperationOutcome</strong> detallando en qué campo exacto falló la validación o si es duplicado.</p>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Connector arrow between phases -->
+        @if (!isLast) {
+          <div class="ml-14 flex items-center gap-2 py-1 pl-4" aria-hidden="true">
+            <lucide-icon [img]="ArrowDown" [size]="16" class="text-slate-300" />
+            <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wide">siguiente fase</span>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Summary Flow -->
+  <div class="bg-slate-50 border border-slate-200 rounded-xl p-6">
+    <h3 class="font-bold text-slate-800 text-sm mb-4 text-center">Resumen Visual del Flujo</h3>
+    <div class="flex flex-wrap items-center justify-center gap-2">
+      @for (phase of phases; track phase.id; let isLast = $last) {
+        <div class="flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold text-white" [class]="phase.iconBgClass">
+          <lucide-icon [img]="phase.icon" [size]="14" />
+          <span>{{ phase.title }}</span>
+        </div>
+        @if (!isLast) {
+          <lucide-icon [img]="ChevronRight" [size]="16" class="text-slate-400 shrink-0" />
+        }
+      }
+    </div>
+  </div>
+</div>

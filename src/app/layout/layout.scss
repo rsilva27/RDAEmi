@@ -1,0 +1,13 @@
+@reference "tailwindcss";
+
+:host {
+  display: block;
+}
+
+.nav-link.active-link {
+  @apply bg-blue-600 text-white font-medium shadow-md;
+
+  .nav-icon {
+    @apply text-blue-200;
+  }
+}

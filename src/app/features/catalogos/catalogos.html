@@ -1,0 +1,18 @@
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold text-slate-800 border-b pb-2">5. Catálogos y Terminologías Oficiales</h2>
+  <p class="text-slate-600">El uso correcto de los catálogos nacionales es estrictamente obligatorio para evitar rechazos HTTP 400. La API permite sincronizar o validar estas tablas maestras.</p>
+
+  <div class="flex gap-4 mb-6">
+    <code class="text-sm bg-slate-100 p-2 rounded text-slate-800 border border-slate-200">GET /CodeSystem/&#123;code-system&#125;</code>
+    <code class="text-sm bg-slate-100 p-2 rounded text-slate-800 border border-slate-200">GET /CodeSystem/&#123;code-system&#125;/$validate-code?code=&#123;codigo&#125;</code>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    @for (cat of catalogos; track cat.title) {
+      <div class="p-4 rounded-lg border" [class]="cat.colorClass">
+        <h4 class="font-bold mb-1">{{ cat.title }}</h4>
+        <p class="text-sm opacity-90">{{ cat.description }}</p>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,138 @@
+<div class="space-y-6">
+
+  <!-- Badge -->
+  <div class="flex items-center gap-3">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">
+      <lucide-icon [img]="AlertTriangle" [size]="14" /> Reglas de Oro para Desarrolladores
+    </span>
+    <span class="text-xs text-slate-500">Motor Único de Validación (MUV) — Validación en tiempo real</span>
+  </div>
+
+  <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg">
+    <p class="text-sm text-amber-900">El IHCE validará en tiempo real el contenido JSON usando su MUV. Implementar estas reglas es <strong>obligatorio</strong> para evitar errores HTTP 400 y 409.</p>
+  </div>
+
+  <!-- 1. EVOL -->
+  <section class="bg-red-50 border border-red-200 rounded-lg p-5">
+    <div class="flex items-start gap-3">
+      <div class="bg-red-100 p-2 rounded-lg shrink-0">
+        <lucide-icon [img]="AlertTriangle" [size]="20" class="text-red-600" />
+      </div>
+      <div>
+        <h4 class="font-bold text-red-900 text-base mb-2">Cruces contra EVOL (Registraduría Nacional)</h4>
+        <p class="text-sm text-red-800 mb-3">El sistema <strong>rechazará el JSON</strong> si el recurso <code class="bg-white px-1 rounded text-xs">Patient</code> no coincide exactamente con el registro nacional EVOL en:</p>
+        <div class="flex flex-wrap gap-2 mb-3">
+          @for (field of ['Tipo de ID', 'Número de ID', 'Sexo biológico', 'Primer nombre', 'Primer apellido']; track field) {
+            <span class="bg-white text-red-700 text-xs font-medium px-2 py-1 rounded border border-red-200">{{ field }}</span>
+          }
+        </div>
+        <div class="bg-white/70 rounded p-3 border border-red-100">
+          <p class="text-xs text-red-700"><strong>Excepción:</strong> Para extranjeros sin documento colombiano oficial o pacientes no identificados en emergencia, se omite EVOL pero se valida contra la existencia previa en el sistema.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Duplicados -->
+  <section class="bg-amber-50 border border-amber-200 rounded-lg p-5">
+    <div class="flex items-start gap-3">
+      <div class="bg-amber-100 p-2 rounded-lg shrink-0">
+        <lucide-icon [img]="Ban" [size]="20" class="text-amber-600" />
+      </div>
+      <div>
+        <h4 class="font-bold text-amber-900 text-base mb-2">Prevención de Duplicados <span class="bg-amber-200 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded">HTTP 409</span></h4>
+        <p class="text-sm text-amber-800 mb-3">Se rechazará el envío si un <code class="bg-white px-1 rounded text-xs">Encounter</code> tiene exactamente los mismos campos de uno ya existente:</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+          @for (field of ['subject (paciente)', 'period (fecha/hora)', 'serviceProvider (prestador)', 'participant (médico)']; track field) {
+            <div class="bg-white rounded p-2 text-center border border-amber-100">
+              <code class="text-xs text-amber-800 font-bold">{{ field }}</code>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Referencias Internas -->
+  <section class="bg-white border border-slate-200 rounded-lg p-5">
+    <div class="flex items-start gap-3">
+      <div class="bg-indigo-100 p-2 rounded-lg shrink-0">
+        <lucide-icon [img]="Hash" [size]="20" class="text-indigo-600" />
+      </div>
+      <div class="flex-1">
+        <h4 class="font-bold text-slate-800 text-base mb-2">Referencias Internas con Numeral (#)</h4>
+        <p class="text-sm text-slate-600 mb-3">Cuando un recurso apunte a otro dentro del mismo Bundle, la referencia usa <code class="bg-slate-100 px-1 rounded text-xs">#TipoRecurso-NumRecurso</code>. El ID declarativo del recurso <strong>no lleva numeral</strong>.</p>
+        <app-code-block title="Convención de referencias internas y nacionales" [code]="referenciaExample" />
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Terminologías -->
+  <section class="bg-white border border-slate-200 rounded-lg p-5">
+    <div class="flex items-start gap-3">
+      <div class="bg-purple-100 p-2 rounded-lg shrink-0">
+        <lucide-icon [img]="BookMarked" [size]="20" class="text-purple-600" />
+      </div>
+      <div class="flex-1">
+        <h4 class="font-bold text-slate-800 text-base mb-2">Terminologías Mapeadas</h4>
+        <p class="text-sm text-slate-600 mb-3"><strong>No se pueden enviar códigos internos del software propio.</strong> Todos los envíos deben usar exclusivamente:</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          @for (term of terminologias; track term.code) {
+            <div class="p-3 rounded-lg border" [class]="term.color">
+              <span class="font-bold text-sm block">{{ term.code }}</span>
+              <span class="text-xs opacity-80">{{ term.desc }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. RETHUS -->
+  <section class="bg-blue-50 border border-blue-200 rounded-lg p-5">
+    <div class="flex items-start gap-3">
+      <div class="bg-blue-100 p-2 rounded-lg shrink-0">
+        <lucide-icon [img]="UserCheck" [size]="20" class="text-blue-600" />
+      </div>
+      <div>
+        <h4 class="font-bold text-blue-900 text-base mb-2">Validación RETHUS en Tiempo Real</h4>
+        <p class="text-sm text-blue-800">Los documentos de los médicos tratantes enviados en el recurso <code class="bg-white px-1 rounded text-xs">Practitioner</code> se validarán contra la base nacional RETHUS. <strong>Si el médico no está activo, se rechaza la transmisión completa.</strong></p>
+        <p class="text-xs text-blue-600 mt-2">Recomendación: Usar el endpoint <code class="bg-white px-1 rounded text-[10px]">POST /Practitioner/$consultar-profesional-salud</code> antes del envío para verificar estado.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Store-and-Forward -->
+  <section class="bg-slate-800 text-slate-200 rounded-lg p-5">
+    <div class="flex items-start gap-3">
+      <div class="bg-slate-700 p-2 rounded-lg shrink-0">
+        <lucide-icon [img]="Wifi" [size]="20" class="text-emerald-400" />
+      </div>
+      <div>
+        <h4 class="font-bold text-white text-base mb-2">Políticas de Encolamiento (Store-and-Forward)</h4>
+        <p class="text-sm text-slate-300 mb-3">Dado que prestan servicios a domicilio sometidos a caídas de internet móvil, se exige técnicamente:</p>
+        <ul class="space-y-2 text-sm">
+          <li class="flex items-start gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0"></span>
+            Mecanismo asincrónico con <strong class="text-emerald-300">backoff exponencial</strong>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0"></span>
+            Las atenciones sin conexión deben <strong class="text-emerald-300">encolarse localmente</strong>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0"></span>
+            Reintentar envío cuando el dispositivo retome conexión
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0"></span>
+            Registro (log) claro de <strong class="text-emerald-300">intentos y errores de estructura</strong>
+          </li>
+        </ul>
+        <div class="mt-3 bg-slate-700/50 rounded p-3 border border-slate-600">
+          <p class="text-xs text-slate-400">Tecnologías sugeridas: RabbitMQ, Kafka, Azure Service Bus, o IndexedDB (en caso de app móvil).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

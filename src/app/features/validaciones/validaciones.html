@@ -1,0 +1,32 @@
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold text-slate-800 border-b pb-2">7. Reglas de Validación Críticas (MUV)</h2>
+  <p class="text-slate-600">El Motor Único de Validación (MUV) aplica reglas estrictas para mantener la consistencia en el ecosistema nacional.</p>
+
+  <div class="bg-red-50 border border-red-200 rounded-lg p-5">
+    <div class="flex items-center gap-3 mb-2">
+      <lucide-icon [img]="AlertTriangle" class="text-red-500" />
+      <h3 class="font-bold text-red-900">Validación de Paciente (MPI EVOL)</h3>
+    </div>
+    <p class="text-sm text-red-800">
+      Para ciudadanos colombianos, el tipo y número de documento, nombres y apellidos, y sexo biológico enviados <strong>deben coincidir exactamente con la Registraduría Nacional (Registro EVOL)</strong>.
+      Las inconsistencias provocarán rechazo automático (HTTP 400). Para extranjeros o no identificados, se omite esta validación y se crea el registro temporal.
+    </p>
+  </div>
+
+  <div class="bg-amber-50 border border-amber-200 rounded-lg p-5">
+    <div class="flex items-center gap-3 mb-2">
+      <lucide-icon [img]="Lock" class="text-amber-500" />
+      <h3 class="font-bold text-amber-900">Duplicidad (Error 409 Conflict)</h3>
+    </div>
+    <p class="text-sm text-amber-800">
+      Si un envío de <code>Encounter</code> tiene exactamente el mismo <code>subject</code>, <code>period</code>, <code>serviceProvider</code> y <code>participant</code> de uno ya existente en la base de datos central, el sistema retornará un error <strong>409 Conflict</strong>.
+    </p>
+  </div>
+
+  <div class="bg-blue-50 border border-blue-200 rounded-lg p-5">
+    <h3 class="font-bold text-blue-900 mb-2">OperationOutcome (Respuestas MUV)</h3>
+    <p class="text-sm text-blue-800">
+      Todos los rechazos o confirmaciones devolverán un recurso FHIR <code>OperationOutcome</code>. Este especificará el nivel de severidad (error/warning), el código del fallo y la ubicación exacta (Path JSON) del campo inválido.
+    </p>
+  </div>
+</div>

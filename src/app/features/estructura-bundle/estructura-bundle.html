@@ -1,0 +1,454 @@
+<!-- ═══════════════════════════════════════════════════════════════════════
+     ESTRUCTURA BUNDLE — Visualizador interactivo del JSON transaccional
+     Bundle FHIR R4 tipo "document" para el Ministerio de Salud (IHCE)
+     ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- HEADER -->
+<header class="mb-8">
+  <h2 class="text-2xl font-bold text-slate-800">Cuerpo del JSON Transaccional</h2>
+  <p class="text-sm text-slate-500 mt-1">
+    Estructura visual del recurso <strong>Bundle</strong> tipo <code class="px-1.5 py-0.5 bg-slate-100 rounded text-xs font-mono">document</code>
+    (HL7 FHIR R4) — 8 entradas obligatorias
+  </p>
+
+  <!-- Action buttons -->
+  <div class="flex flex-wrap gap-2 mt-4">
+    <button
+      type="button"
+      (click)="toggleSecurityPanel()"
+      [class]="showSecurityPanel()
+        ? 'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600 text-white shadow-md'
+        : 'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'"
+    >
+      <lucide-icon [img]="ShieldCheck" [size]="16" />
+      Arquitectura de Seguridad
+    </button>
+    <button
+      type="button"
+      (click)="toggleErrorDemo()"
+      [class]="showErrorDemo()
+        ? 'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-red-600 text-white shadow-md'
+        : 'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'"
+    >
+      <lucide-icon [img]="AlertTriangle" [size]="16" />
+      OperationOutcome (Errores)
+    </button>
+    <button
+      type="button"
+      (click)="simularEnvioRDA()"
+      [disabled]="sendingRDA()"
+      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-wait shadow-md"
+    >
+      <lucide-icon [img]="Send" [size]="16" />
+      @if (sendingRDA()) {
+        Enviando RDA...
+      } @else {
+        Simular Envío RDA
+      }
+    </button>
+  </div>
+</header>
+
+<!-- ═══ SECURITY PANEL ═══ -->
+@if (showSecurityPanel()) {
+  <section class="mb-8 bg-emerald-50 border border-emerald-200 rounded-xl p-6 animate-fadeIn" aria-label="Arquitectura de seguridad">
+    <h3 class="text-lg font-bold text-emerald-800 flex items-center gap-2 mb-4">
+      <lucide-icon [img]="ShieldCheck" [size]="20" class="text-emerald-600" />
+      Arquitectura de Seguridad — Cumplimiento Normativo
+    </h3>
+    <p class="text-sm text-emerald-700 mb-6">
+      Requisitos estrictos de seguridad según la norma técnica del Ministerio y la Ley 1581 de 2012 (Habeas Data).
+    </p>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+      <!-- BFF Pattern -->
+      <div>
+        <h4 class="text-sm font-bold text-emerald-800 flex items-center gap-2 mb-2">
+          <lucide-icon [img]="Lock" [size]="16" />
+          1. No exponer credenciales (BFF Pattern)
+        </h4>
+        <p class="text-xs text-emerald-700 mb-2">
+          El frontend NUNCA almacena <code class="text-xs bg-emerald-100 px-1 rounded">client_id</code>,
+          <code class="text-xs bg-emerald-100 px-1 rounded">client_secret</code> ni
+          <code class="text-xs bg-emerald-100 px-1 rounded">Ocp-Apim-Subscription-Key</code>.
+          Se resuelven desde Azure Key Vault vía un BFF.
+        </p>
+        <app-code-block title="backend-for-frontend.ts" [code]="bffSnippet" />
+      </div>
+
+      <!-- enviarRDA -->
+      <div>
+        <h4 class="text-sm font-bold text-emerald-800 flex items-center gap-2 mb-2">
+          <lucide-icon [img]="Send" [size]="16" />
+          2. Cabeceras HTTP y Cifrado en Tránsito (TLS 1.2+)
+        </h4>
+        <p class="text-xs text-emerald-700 mb-2">
+          Toda comunicación fuerza <code class="text-xs bg-emerald-100 px-1 rounded">https://</code>.
+          Se inyectan los headers <code class="text-xs bg-emerald-100 px-1 rounded">Authorization</code>,
+          <code class="text-xs bg-emerald-100 px-1 rounded">Ocp-Apim-Subscription-Key</code> y
+          <code class="text-xs bg-emerald-100 px-1 rounded">Content-Type: application/fhir+json</code>.
+        </p>
+        <app-code-block title="enviarRDA.ts" [code]="enviarRDASnippet" />
+      </div>
+
+      <!-- AES-256 -->
+      <div>
+        <h4 class="text-sm font-bold text-emerald-800 flex items-center gap-2 mb-2">
+          <lucide-icon [img]="Lock" [size]="16" />
+          3. Cifrado en Reposo (AES-256-GCM)
+        </h4>
+        <p class="text-xs text-emerald-700 mb-2">
+          Si el navegador pierde conectividad, el JSON se cifra con AES-256-GCM antes de persistirse en localStorage.
+        </p>
+        <app-code-block title="cifrado-aes256.ts" [code]="cifradoSnippet" />
+      </div>
+
+      <!-- OperationOutcome handler -->
+      <div>
+        <h4 class="text-sm font-bold text-emerald-800 flex items-center gap-2 mb-2">
+          <lucide-icon [img]="AlertTriangle" [size]="16" />
+          4. Manejo de Errores (OperationOutcome)
+        </h4>
+        <p class="text-xs text-emerald-700 mb-2">
+          Los errores HTTP 400/409 del validador VIDA retornan un recurso
+          <code class="text-xs bg-emerald-100 px-1 rounded">OperationOutcome</code> con
+          <code class="text-xs bg-emerald-100 px-1 rounded">issue[].diagnostics</code>.
+        </p>
+        <app-code-block title="manejar-operationoutcome.ts" [code]="operationOutcomeSnippet" />
+      </div>
+    </div>
+  </section>
+}
+
+<!-- ═══ OPERATION OUTCOME DEMO ═══ -->
+@if (showErrorDemo()) {
+  <section class="mb-8 bg-red-50 border border-red-200 rounded-xl p-6 animate-fadeIn" aria-label="Demostración de errores OperationOutcome">
+    <h3 class="text-lg font-bold text-red-800 flex items-center gap-2 mb-2">
+      <lucide-icon [img]="AlertTriangle" [size]="20" class="text-red-600" />
+      OperationOutcome — Respuesta del Validador VIDA
+    </h3>
+    <p class="text-sm text-red-700 mb-4">
+      Ejemplo de errores devueltos por el Ministerio al enviar un Bundle con campos inválidos
+      (<strong>HTTP 400 — Bad Request</strong>).
+    </p>
+
+    <div class="space-y-3">
+      @for (issue of mockOperationOutcome; track issue.location) {
+        <div class="rounded-lg border p-4" [class]="severityClass(issue.severity)">
+          <div class="flex items-start gap-3">
+            <span class="shrink-0 px-2 py-0.5 rounded text-xs font-bold uppercase" [class]="severityBadge(issue.severity)">
+              {{ issue.severity }}
+            </span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium">{{ issue.diagnostics }}</p>
+              <p class="text-xs mt-1 opacity-75 font-mono">
+                <strong>Ubicación:</strong> {{ issue.location }}
+              </p>
+              <p class="text-xs mt-0.5 opacity-75">
+                <strong>Código:</strong> {{ issue.code }}
+              </p>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+}
+
+<!-- ═══ MAIN LAYOUT: Bundle Tree (left) + Detail Panel (right) ═══ -->
+<div class="flex flex-col lg:flex-row gap-6">
+
+  <!-- ── LEFT: Bundle visual tree ── -->
+  <div class="lg:w-1/2 xl:w-5/12 shrink-0">
+    <!-- Bundle wrapper card -->
+    <div class="rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-4">
+      <!-- Bundle header -->
+      <div class="flex items-center gap-3 mb-4 pb-3 border-b border-slate-200">
+        <div class="w-10 h-10 rounded-lg bg-slate-800 text-white flex items-center justify-center">
+          <lucide-icon [img]="Package" [size]="20" />
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-800">Bundle</h3>
+          <span class="text-xs text-slate-500 font-mono">type: "document" · 8 entries</span>
+        </div>
+      </div>
+
+      <!-- Entry blocks -->
+      <div class="space-y-2" role="list" aria-label="Entradas del Bundle FHIR">
+        @for (entry of entries; track entry.id) {
+          <button
+            type="button"
+            role="listitem"
+            class="entry-block w-full text-left rounded-lg border-2 p-3 transition-all duration-200 cursor-pointer"
+            [class]="activeEntry() === entry.id ? entryActiveBg(entry.color) : entryBg(entry.color)"
+            (mouseenter)="onEntryHover(entry.id)"
+            (click)="selectEntry(entry.id)"
+            [attr.aria-expanded]="activeEntry() === entry.id"
+            [attr.aria-label]="'entry[' + entry.index + ']: ' + entry.resource + ' — ' + entry.title"
+          >
+            <div class="flex items-center gap-3">
+              <!-- Index badge -->
+              <span class="shrink-0 w-6 h-6 rounded-full bg-slate-800 text-white text-xs font-bold flex items-center justify-center">
+                {{ entry.index }}
+              </span>
+              <!-- Icon -->
+              <span class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" [class]="iconBg(entry.color)">
+                <lucide-icon [img]="entry.icon" [size]="16" />
+              </span>
+              <!-- Text -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-mono text-slate-500">entry[{{ entry.index }}]</span>
+                  <span class="text-sm font-bold text-slate-800 truncate">{{ entry.resource }}</span>
+                </div>
+                <p class="text-xs text-slate-600 truncate">{{ entry.subtitle }}</p>
+              </div>
+              <!-- Arrow -->
+              <lucide-icon
+                [img]="ChevronRight"
+                [size]="16"
+                class="shrink-0 text-slate-400 transition-transform duration-200"
+                [class.rotate-0]="activeEntry() !== entry.id"
+              />
+            </div>
+          </button>
+        }
+      </div>
+
+      <!-- Bundle footer -->
+      <div class="mt-4 pt-3 border-t border-slate-200">
+        <app-code-block title="bundle-wrapper.json" [code]="bundleWrapper" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT: Detail aside panel ── -->
+  <aside class="lg:w-1/2 xl:w-7/12 lg:sticky lg:top-0 lg:self-start lg:max-h-screen lg:overflow-y-auto" aria-live="polite">
+    @if (activeEntryData(); as entry) {
+      <div class="rounded-xl border border-slate-200 bg-white shadow-lg overflow-hidden animate-fadeIn">
+        <!-- Panel header -->
+        <div class="px-6 py-4 text-white" [class]="headerBg(entry.color)">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
+                <lucide-icon [img]="entry.icon" [size]="18" />
+              </span>
+              <div>
+                <h3 class="text-base font-bold">{{ entry.title }}</h3>
+                <p class="text-xs opacity-80">{{ entry.subtitle }}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              (click)="clearSelection()"
+              class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+              aria-label="Cerrar panel"
+            >
+              <lucide-icon [img]="XIcon" [size]="16" />
+            </button>
+          </div>
+        </div>
+
+        <div class="p-6 space-y-6">
+          <!-- Required Fields -->
+          <div>
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Campos Requeridos</h4>
+            <ul class="space-y-1.5">
+              @for (field of entry.requiredFields; track field) {
+                <li class="flex items-start gap-2 text-sm text-slate-700">
+                  <lucide-icon [img]="ChevronRight" [size]="14" class="shrink-0 mt-0.5 text-slate-400" />
+                  <code class="text-xs font-mono bg-slate-100 px-1.5 py-0.5 rounded break-all">{{ field }}</code>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <!-- Catalogs -->
+          @if (entry.catalogs.length) {
+            <div>
+              <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Catálogos Obligatorios</h4>
+              <div class="space-y-2">
+                @for (cat of entry.catalogs; track cat.name) {
+                  <div class="flex items-center gap-2 p-2.5 bg-blue-50 rounded-lg border border-blue-100">
+                    <lucide-icon [img]="FileText" [size]="14" class="text-blue-600 shrink-0" />
+                    <span class="text-sm font-medium text-blue-800 flex-1">{{ cat.name }}</span>
+                    @if (cat.url) {
+                      <a
+                        [href]="cat.url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-blue-600 hover:text-blue-800 transition-colors"
+                        aria-label="Ver catálogo en SISPRO"
+                      >
+                        <lucide-icon [img]="ExternalLink" [size]="14" />
+                      </a>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Validation Rules -->
+          @if (entry.validations.length) {
+            <div>
+              <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Reglas de Validación MUV</h4>
+              <div class="space-y-2">
+                @for (rule of entry.validations; track rule.description) {
+                  <div class="p-3 bg-amber-50 rounded-lg border border-amber-100">
+                    <div class="flex items-start gap-2">
+                      <lucide-icon [img]="AlertTriangle" [size]="14" class="shrink-0 mt-0.5 text-amber-600" />
+                      <div>
+                        @if (rule.code) {
+                          <span class="inline-block px-1.5 py-0.5 bg-amber-200 text-amber-800 text-xs font-bold rounded mb-1">{{ rule.code }}</span>
+                        }
+                        <p class="text-sm text-amber-900">{{ rule.description }}</p>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Security Note -->
+          @if (entry.securityNote) {
+            <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+              <div class="flex items-start gap-2">
+                <lucide-icon [img]="ShieldCheck" [size]="14" class="shrink-0 mt-0.5 text-emerald-600" />
+                <p class="text-sm text-emerald-800">{{ entry.securityNote }}</p>
+              </div>
+            </div>
+          }
+
+          <!-- JSON Snippet -->
+          <div>
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Fragmento JSON (FHIR R4)</h4>
+            <app-code-block [title]="entry.resource + '.json'" [code]="entry.jsonSnippet" />
+          </div>
+        </div>
+      </div>
+    } @else {
+      <!-- Empty state -->
+      <div class="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-12 text-center lg:sticky lg:top-0">
+        <div class="w-16 h-16 rounded-2xl bg-slate-200 flex items-center justify-center mx-auto mb-4">
+          <lucide-icon [img]="Eye" [size]="28" class="text-slate-400" />
+        </div>
+        <h3 class="text-lg font-bold text-slate-600 mb-2">Panel de Detalle</h3>
+        <p class="text-sm text-slate-500 max-w-xs mx-auto">
+          Pasa el mouse o haz clic en cualquier bloque del Bundle para ver su fragmento JSON, catálogos obligatorios
+          y reglas de validación.
+        </p>
+      </div>
+    }
+  </aside>
+
+</div>
+
+<!-- ═══ MOBILE DETAIL OVERLAY ═══ -->
+@if (activeEntryData(); as entry) {
+  <div
+    class="lg:hidden fixed inset-0 z-50 bg-black/40 flex items-end"
+    (click)="clearSelection()"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="'Detalle de ' + entry.resource"
+  >
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <div
+      class="w-full max-h-[85vh] overflow-y-auto bg-white rounded-t-2xl shadow-2xl animate-slideUp"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Mobile panel header -->
+      <div class="sticky top-0 z-10 px-5 py-3.5 text-white flex items-center justify-between" [class]="headerBg(entry.color)">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+            <lucide-icon [img]="entry.icon" [size]="16" />
+          </span>
+          <h3 class="text-sm font-bold">{{ entry.title }}</h3>
+        </div>
+        <button
+          type="button"
+          (click)="clearSelection()"
+          class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center"
+          aria-label="Cerrar"
+        >
+          <lucide-icon [img]="XIcon" [size]="16" />
+        </button>
+      </div>
+
+      <div class="p-5 space-y-5">
+        <!-- Required fields -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Campos Requeridos</h4>
+          <ul class="space-y-1.5">
+            @for (field of entry.requiredFields; track field) {
+              <li class="flex items-start gap-2 text-sm text-slate-700">
+                <lucide-icon [img]="ChevronRight" [size]="14" class="shrink-0 mt-0.5 text-slate-400" />
+                <code class="text-xs font-mono bg-slate-100 px-1.5 py-0.5 rounded break-all">{{ field }}</code>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <!-- Catalogs -->
+        @if (entry.catalogs.length) {
+          <div>
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Catálogos Obligatorios</h4>
+            <div class="space-y-2">
+              @for (cat of entry.catalogs; track cat.name) {
+                <div class="flex items-center gap-2 p-2.5 bg-blue-50 rounded-lg border border-blue-100">
+                  <lucide-icon [img]="FileText" [size]="14" class="text-blue-600 shrink-0" />
+                  <span class="text-sm font-medium text-blue-800 flex-1">{{ cat.name }}</span>
+                  @if (cat.url) {
+                    <a [href]="cat.url" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800" aria-label="Ver catálogo">
+                      <lucide-icon [img]="ExternalLink" [size]="14" />
+                    </a>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Validations -->
+        @if (entry.validations.length) {
+          <div>
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Reglas de Validación MUV</h4>
+            <div class="space-y-2">
+              @for (rule of entry.validations; track rule.description) {
+                <div class="p-3 bg-amber-50 rounded-lg border border-amber-100">
+                  <div class="flex items-start gap-2">
+                    <lucide-icon [img]="AlertTriangle" [size]="14" class="shrink-0 mt-0.5 text-amber-600" />
+                    <div>
+                      @if (rule.code) {
+                        <span class="inline-block px-1.5 py-0.5 bg-amber-200 text-amber-800 text-xs font-bold rounded mb-1">{{ rule.code }}</span>
+                      }
+                      <p class="text-sm text-amber-900">{{ rule.description }}</p>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Security note -->
+        @if (entry.securityNote) {
+          <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+            <div class="flex items-start gap-2">
+              <lucide-icon [img]="ShieldCheck" [size]="14" class="shrink-0 mt-0.5 text-emerald-600" />
+              <p class="text-sm text-emerald-800">{{ entry.securityNote }}</p>
+            </div>
+          </div>
+        }
+
+        <!-- JSON -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Fragmento JSON (FHIR R4)</h4>
+          <app-code-block [title]="entry.resource + '.json'" [code]="entry.jsonSnippet" />
+        </div>
+      </div>
+    </div>
+  </div>
+}

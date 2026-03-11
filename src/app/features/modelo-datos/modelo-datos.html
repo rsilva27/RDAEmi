@@ -1,0 +1,369 @@
+<!-- ==================== HEADER ==================== -->
+<header class="mb-6">
+  <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
+    <div>
+      <h1 class="text-2xl font-extrabold text-slate-900 mb-1">Diccionario de Datos</h1>
+      <p class="text-sm text-slate-500">
+        RDA (Res. 1888/2025) + RIPS (Res. 2275/2023) — Modelo extendido con tipos, reglas MUV y endpoints de validación.
+      </p>
+    </div>
+    <div class="flex gap-2 shrink-0">
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs font-semibold hover:bg-red-100 transition-colors"
+        (click)="openRulesDialog()"
+      >
+        <lucide-icon [img]="AlertTriangle" [size]="14" />
+        Reglas JSON
+      </button>
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors"
+        (click)="openBackendDialog()"
+      >
+        <lucide-icon [img]="Database" [size]="14" />
+        Nota Backend
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== STATS BAR ==================== -->
+<div class="flex flex-wrap items-center gap-3 mb-5 text-xs">
+  <span class="font-semibold text-slate-700">{{ totalFields() }} campos</span>
+  <span class="text-slate-300">|</span>
+  <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-red-400"></span> {{ stats().obligatorio }} obligatorios</span>
+  <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-amber-400"></span> {{ stats().condicional }} condicionales</span>
+  <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-slate-300"></span> {{ stats().opcional }} opcionales</span>
+  <span class="text-slate-300">|</span>
+  <span class="text-slate-500">6 entidades FHIR</span>
+</div>
+
+<!-- ==================== SEARCH + FILTERS ==================== -->
+<div class="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-slate-200 -mx-6 md:-mx-10 px-6 md:px-10 py-3 mb-6">
+  <!-- Search bar -->
+  <div class="relative mb-3">
+    <lucide-icon [img]="SearchIcon" [size]="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+    <input
+      type="text"
+      placeholder="Buscar por atributo, catálogo o código de regla..."
+      class="w-full pl-9 pr-9 py-2.5 text-sm rounded-lg border border-slate-200 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-shadow"
+      [value]="searchQuery()"
+      (input)="onSearch($event)"
+    />
+    @if (searchQuery()) {
+      <button
+        type="button"
+        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+        (click)="clearSearch()"
+        aria-label="Limpiar búsqueda"
+      >
+        <lucide-icon [img]="X" [size]="14" />
+      </button>
+    }
+  </div>
+
+  <!-- Filter row: entities + obligatoriedad -->
+  <div class="flex flex-wrap items-center gap-2">
+    <!-- Entity pills -->
+    <button
+      type="button"
+      class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border cursor-pointer transition-all hover:border-slate-300 hover:bg-slate-50"
+      [class]="activeEntity() === null ? 'border-blue-300 bg-blue-50 text-blue-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600'"
+      (click)="setActiveEntity(null)"
+    >Todas</button>
+    @for (entity of entities; track entity.id) {
+      <button
+        type="button"
+        class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border cursor-pointer transition-all hover:border-slate-300 hover:bg-slate-50"
+        [class]="activeEntity() === entity.id ? 'border-' + entity.color + '-300 bg-' + entity.color + '-50 text-' + entity.color + '-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600'"
+        (click)="setActiveEntity(entity.id)"
+      >
+        <lucide-icon [img]="entity.icon" [size]="12" />
+        {{ entity.title }}
+        <span class="text-[10px] opacity-60">{{ entity.fields.length }}</span>
+      </button>
+    }
+
+    <span class="mx-1 text-slate-300">|</span>
+
+    <!-- Obligatoriedad filter -->
+    <button
+      type="button"
+      class="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-medium border cursor-pointer transition-all hover:bg-slate-50"
+      [class]="obligFilter() === 'all' ? 'border-slate-400 bg-slate-100 text-slate-700' : 'border-slate-200 bg-white text-slate-500'"
+      (click)="setObligFilter('all')"
+    >Todos</button>
+    <button
+      type="button"
+      class="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-medium border cursor-pointer transition-all hover:bg-slate-50"
+      [class]="obligFilter() === 'Obligatorio' ? 'border-red-300 bg-red-50 text-red-700' : 'border-slate-200 bg-white text-slate-500'"
+      (click)="setObligFilter('Obligatorio')"
+    >Obligatorio</button>
+    <button
+      type="button"
+      class="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-medium border cursor-pointer transition-all hover:bg-slate-50"
+      [class]="obligFilter() === 'Condicional' ? 'border-amber-300 bg-amber-50 text-amber-700' : 'border-slate-200 bg-white text-slate-500'"
+      (click)="setObligFilter('Condicional')"
+    >Condicional</button>
+    <button
+      type="button"
+      class="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-medium border cursor-pointer transition-all hover:bg-slate-50"
+      [class]="obligFilter() === 'Opcional' ? 'border-slate-300 bg-slate-100 text-slate-600' : 'border-slate-200 bg-white text-slate-500'"
+      (click)="setObligFilter('Opcional')"
+    >Opcional</button>
+  </div>
+</div>
+
+<!-- ==================== ENTITY SECTIONS ==================== -->
+@for (entity of filteredEntities(); track entity.id) {
+  <section class="mb-8" [attr.aria-labelledby]="'entity-' + entity.id">
+    <!-- Entity Header -->
+    <div class="flex items-center gap-3 mb-3" [id]="'entity-' + entity.id">
+      <span
+        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white"
+        [class]="'bg-' + entity.color + '-600'"
+      >
+        <lucide-icon [img]="entity.icon" [size]="18" />
+      </span>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-baseline gap-2">
+          <h2 class="text-base font-bold text-slate-900">{{ entity.title }}</h2>
+          <span class="text-xs text-slate-400 font-mono">{{ entity.fhirResource }}</span>
+        </div>
+        <p class="text-xs text-slate-500">{{ entity.subtitle }} · {{ entity.fields.length }} campos</p>
+      </div>
+    </div>
+
+    <!-- Fields Table -->
+    <div class="rounded-xl border border-slate-200 overflow-hidden bg-white">
+      <!-- Table header (desktop) -->
+      <div class="hidden lg:grid grid-cols-[minmax(160px,1.2fr)_minmax(130px,1fr)_100px_minmax(120px,1fr)_40px] gap-px bg-slate-50 px-4 py-2.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
+        <span>Atributo</span>
+        <span>Tipo / Tamaño</span>
+        <span>Obligat.</span>
+        <span>Catálogo</span>
+        <span></span>
+      </div>
+
+      <!-- Field rows -->
+      @for (field of entity.fields; track field.atributo) {
+        <!-- Compact row -->
+        <button
+          type="button"
+          class="field-row w-full text-left"
+          [class]="isFieldExpanded(entity.id + '.' + field.atributo) ? 'bg-slate-50' : ''"
+          (click)="toggleField(entity.id + '.' + field.atributo)"
+          [attr.aria-expanded]="isFieldExpanded(entity.id + '.' + field.atributo)"
+        >
+          <!-- Mobile layout -->
+          <div class="lg:hidden flex items-center gap-3 px-4 py-3">
+            <div class="flex-1 min-w-0">
+              <code class="text-sm font-bold font-mono text-slate-900">{{ field.atributo }}</code>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="text-[11px] text-slate-400 font-mono">{{ field.tipo }}</span>
+                <span
+                  class="inline-block text-[10px] font-bold uppercase px-1.5 py-0.5 rounded"
+                  [class]="{
+                    'bg-red-100 text-red-700': field.obligatoriedad === 'Obligatorio',
+                    'bg-amber-100 text-amber-700': field.obligatoriedad === 'Condicional',
+                    'bg-slate-100 text-slate-500': field.obligatoriedad === 'Opcional'
+                  }"
+                >{{ field.obligatoriedad }}</span>
+              </div>
+            </div>
+            <lucide-icon
+              [img]="isFieldExpanded(entity.id + '.' + field.atributo) ? ChevronDown : ChevronRight"
+              [size]="16"
+              class="text-slate-400 shrink-0"
+            />
+          </div>
+
+          <!-- Desktop layout -->
+          <div class="hidden lg:grid grid-cols-[minmax(160px,1.2fr)_minmax(130px,1fr)_100px_minmax(120px,1fr)_40px] gap-px items-center px-4 py-3">
+            <code class="text-sm font-bold font-mono text-slate-900 truncate">{{ field.atributo }}</code>
+            <span class="text-xs text-slate-500 font-mono truncate">{{ field.tipo }}</span>
+            <span>
+              <span
+                class="inline-block text-[10px] font-bold uppercase px-1.5 py-0.5 rounded"
+                [class]="{
+                  'bg-red-100 text-red-700': field.obligatoriedad === 'Obligatorio',
+                  'bg-amber-100 text-amber-700': field.obligatoriedad === 'Condicional',
+                  'bg-slate-100 text-slate-500': field.obligatoriedad === 'Opcional'
+                }"
+              >
+                {{ field.obligatoriedad }}
+              </span>
+            </span>
+            <span class="text-xs text-slate-600 truncate">{{ field.catalogo }}</span>
+            <lucide-icon
+              [img]="isFieldExpanded(entity.id + '.' + field.atributo) ? ChevronDown : ChevronRight"
+              [size]="16"
+              class="text-slate-400"
+            />
+          </div>
+        </button>
+
+        <!-- Expanded detail panel -->
+        @if (isFieldExpanded(entity.id + '.' + field.atributo)) {
+          <div class="bg-slate-50 border-b border-slate-200 animate-fadeIn">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+              <!-- Col 1: Catálogo -->
+              <div class="rounded-lg border border-slate-200 bg-white p-3">
+                <div class="flex items-center gap-1.5 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <lucide-icon [img]="Database" class="text-blue-500" [size]="13" />
+                  <span>Catálogo</span>
+                </div>
+                <p class="text-sm font-semibold text-slate-800 mb-1">{{ field.catalogo }}</p>
+                @if (field.obligatoriedadNota) {
+                  <p class="text-[11px] text-slate-500 mb-1">{{ field.obligatoriedadNota }}</p>
+                }
+                @if (field.catalogoUrl) {
+                  <a
+                    [href]="field.catalogoUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    <lucide-icon [img]="ExternalLink" [size]="11" />
+                    Consultar en SISPRO
+                  </a>
+                }
+              </div>
+
+              <!-- Col 2: Endpoint de Validación -->
+              <div class="rounded-lg border border-slate-200 bg-white p-3">
+                <div class="flex items-center gap-1.5 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <lucide-icon [img]="ShieldCheck" class="text-emerald-500" [size]="13" />
+                  <span>Endpoint Validación</span>
+                </div>
+                @if (field.endpoint) {
+                  @if (field.endpoint.startsWith('POST')) {
+                    <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 mb-1.5">POST</span>
+                  } @else {
+                    <span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 mb-1.5">GET</span>
+                  }
+                  <code class="text-[11px] font-mono text-slate-700 block break-all leading-relaxed">{{ field.endpoint }}</code>
+                } @else {
+                  <span class="text-xs text-slate-400 italic">No requiere validación API</span>
+                }
+              </div>
+
+              <!-- Col 3: Regla MUV -->
+              <div class="rounded-lg border border-amber-200 bg-amber-50/50 p-3">
+                <div class="flex items-center gap-1.5 mb-2 text-[10px] font-bold text-amber-500 uppercase tracking-wider">
+                  <lucide-icon [img]="AlertTriangle" class="text-amber-500" [size]="13" />
+                  <span>Regla de Validación MUV</span>
+                  @if (field.reglaCodigo) {
+                    <span class="ml-auto text-[10px] font-mono font-bold text-amber-700 bg-amber-200 px-1.5 py-0.5 rounded-full">{{ field.reglaCodigo }}</span>
+                  }
+                </div>
+                <p class="text-xs text-amber-900 leading-relaxed">{{ field.regla }}</p>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </section>
+} @empty {
+  <div class="text-center py-16 text-slate-400">
+    <lucide-icon [img]="SearchIcon" [size]="40" class="mx-auto mb-3 opacity-40" />
+    <p class="text-sm font-medium">No se encontraron campos con los filtros aplicados</p>
+    <button type="button" class="text-xs text-blue-600 hover:text-blue-800 mt-2" (click)="clearSearch(); setActiveEntity(null); setObligFilter('all')">
+      Limpiar filtros
+    </button>
+  </div>
+}
+
+<!-- ==================== MODAL: REGLAS GENERALES ==================== -->
+<dialog #rulesDialog class="modal-dialog">
+  <div class="modal-content max-w-2xl">
+    <div class="bg-red-100 px-6 py-4 flex items-center gap-3 border-b border-red-200">
+      <lucide-icon [img]="AlertTriangle" class="text-red-600 shrink-0" [size]="22" />
+      <h2 class="text-lg font-bold text-red-900 flex-1">Reglas Generales de Programación</h2>
+      <button type="button" class="text-red-400 hover:text-red-700 transition-colors" (click)="closeDialog(rulesDialog)" aria-label="Cerrar">
+        <lucide-icon [img]="X" [size]="20" />
+      </button>
+    </div>
+    <div class="p-6 space-y-5">
+      <div class="flex gap-4">
+        <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-600 text-white text-xs font-bold">1</span>
+        <div>
+          <h3 class="font-semibold text-red-900 mb-1">Vacíos en JSON RIPS</h3>
+          <p class="text-sm text-red-800 leading-relaxed">
+            Cuando un campo no tenga información y sea opcional, se debe imprimir exactamente la palabra
+            <code class="bg-red-200 text-red-900 px-1.5 py-0.5 rounded font-mono text-xs">null</code>
+            (sin comillas dobles) en el JSON.
+          </p>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-600 text-white text-xs font-bold">2</span>
+        <div>
+          <h3 class="font-semibold text-red-900 mb-1">Vacíos en JSON RDA (FHIR)</h3>
+          <p class="text-sm text-red-800 leading-relaxed mb-2">
+            Si una sección clínica está vacía (ej. sin alergias), <strong>no se usa null</strong>. Se envía:
+          </p>
+          <app-code-block title="emptyReason FHIR" [code]="emptyReasonSnippet" />
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-600 text-white text-xs font-bold">3</span>
+        <div>
+          <h3 class="font-semibold text-red-900 mb-1">Números y Ceros</h3>
+          <ul class="text-sm text-red-800 leading-relaxed list-disc pl-5 space-y-1">
+            <li>Los campos numéricos financieros <strong>no pueden ser negativos</strong>.</li>
+            <li>Si la atención no genera cobro (ej. cápita), el valor debe ser estrictamente
+              <code class="bg-red-200 text-red-900 px-1 py-0.5 rounded font-mono text-xs">0</code> (cero, sin comillas).</li>
+            <li>No se deben usar puntos separadores de miles.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<!-- ==================== MODAL: BACKEND OBSERVATION ==================== -->
+<dialog #backendDialog class="modal-dialog">
+  <div class="modal-content max-w-2xl">
+    <div class="bg-blue-100 px-6 py-4 flex items-center gap-3 border-b border-blue-200">
+      <lucide-icon [img]="Database" class="text-blue-600 shrink-0" [size]="22" />
+      <h2 class="text-lg font-bold text-blue-900 flex-1">Observación para Arquitectos Backend</h2>
+      <button type="button" class="text-blue-400 hover:text-blue-700 transition-colors" (click)="closeDialog(backendDialog)" aria-label="Cerrar">
+        <lucide-icon [img]="X" [size]="20" />
+      </button>
+    </div>
+    <div class="p-6">
+      <p class="text-sm text-blue-900 mb-5 leading-relaxed">
+        Al usar
+        <code class="bg-blue-200 text-blue-900 px-1.5 py-0.5 rounded font-mono text-xs">/Composition/$enviar-rda-paciente</code> y
+        <code class="bg-blue-200 text-blue-900 px-1.5 py-0.5 rounded font-mono text-xs">/Composition/$enviar-rda-urgencias</code>,
+        mapear los códigos HTTP:
+      </p>
+      <div class="grid grid-cols-1 gap-3">
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50/50 p-4 flex gap-3 items-start">
+          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 font-mono font-bold text-sm">200</span>
+          <div>
+            <span class="text-sm font-bold text-emerald-800">OK</span>
+            <p class="text-xs text-slate-600 mt-0.5">El RDA se guardó con éxito. Retorna identificador <strong>VIDA</strong>.</p>
+          </div>
+        </div>
+        <div class="rounded-lg border border-amber-200 bg-amber-50/50 p-4 flex gap-3 items-start">
+          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700 font-mono font-bold text-sm">400</span>
+          <div>
+            <span class="text-sm font-bold text-amber-800">Bad Request</span>
+            <p class="text-xs text-slate-600 mt-0.5">Falló validación de estructura. Revisar <code class="font-mono text-xs">OperationOutcome.location</code>.</p>
+          </div>
+        </div>
+        <div class="rounded-lg border border-red-200 bg-red-50/50 p-4 flex gap-3 items-start">
+          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-700 font-mono font-bold text-sm">409</span>
+          <div>
+            <span class="text-sm font-bold text-red-800">Conflict</span>
+            <p class="text-xs text-slate-600 mt-0.5">Duplicidad. Rechaza si ya existe atención con mismo <em>subject + period + serviceProvider + participant</em>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
